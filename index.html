@@ -499,6 +499,23 @@ body:has(.vex.in:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-inset-r
 .vex.vex-l.vex-t .vex-say{border-radius:4px 16px 16px 16px;transform-origin:0 0}
 .vx-fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:44}
 .vx-defs{position:absolute;width:0;height:0;overflow:hidden}
+.vex-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.vex-chips:empty{display:none}
+.vex-say.has-chips{max-width:300px}
+.vex-chip{font:inherit;font-size:.78rem;line-height:1.2;padding:7px 11px;border-radius:999px;border:1px solid var(--line-strong);background:rgba(31,102,255,.1);color:var(--fg);cursor:pointer;transition:background .2s,border-color .2s}
+.vex-chip:hover,.vex-chip:focus-visible{background:rgba(31,102,255,.28);border-color:var(--blue-hi);outline:none}
+.vex-chip.main{background:var(--blue);border-color:var(--blue);color:#fff}
+.vex-chip.main:hover,.vex-chip.main:focus-visible{background:#3a7bff}
+.vex.game .vex-bot{cursor:crosshair}
+.vx-hud{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:16px;align-items:center;white-space:nowrap;padding:9px 10px 9px 18px;border-radius:999px;background:rgba(8,13,28,.94);border:1px solid var(--line-strong);box-shadow:0 14px 40px -12px rgba(0,0,0,.8),0 0 24px -6px rgba(31,102,255,.5);font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;color:var(--dim)}
+.vx-hud b{color:var(--fg);font-weight:600;font-size:.95rem}
+.vx-hud-t{color:var(--blue-hi);letter-spacing:.14em}
+.vx-hud button{font:inherit;color:var(--fg);background:rgba(128,160,255,.12);border:1px solid var(--line-strong);border-radius:999px;padding:5px 12px;cursor:pointer}
+.vx-hud button:hover{background:rgba(128,160,255,.24)}
+@media (max-width:640px){.vx-hud{gap:10px;font-size:.7rem;padding-left:14px}.vx-hud-t{display:none}}
+.vx-disco{position:fixed;left:50%;top:50%;width:250vmax;height:250vmax;margin:-125vmax 0 0 -125vmax;pointer-events:none;z-index:43;mix-blend-mode:screen;opacity:0;transition:opacity .7s;background:conic-gradient(from 0deg,rgba(255,0,128,.2),rgba(0,229,255,.2),rgba(255,216,74,.2),rgba(31,102,255,.24),rgba(0,200,120,.18),rgba(255,0,128,.2));animation:vxspin 4s linear infinite}
+.vx-disco.on{opacity:1}
+@keyframes vxspin{to{transform:rotate(360deg)}}
 body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-inset-right,0px)) + 176px)}
 @media (max-width:640px){body:has(.vex.in.fallen:not(.gone)) .float-wa{right:136px}}
 @media (max-width:640px){.vex.vex-l .vex-say{left:30px}.vex.vex-t .vex-say{top:92px}}
@@ -910,7 +927,7 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
 
 <svg class="vx-defs" aria-hidden="true" focusable="false"><filter id="vx-melt" x="-5%" y="-20%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.07" numOctaves="2" seed="7"/><feDisplacementMap id="vx-melt-map" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <div class="vex" id="vex">
-  <div class="vex-say" id="vex-say" role="status" aria-live="polite"><b>VEX · ASSISTENTE</b><p id="vex-text"></p><button class="vex-x" id="vex-x" type="button" aria-label="Esconder o Vex">×</button></div>
+  <div class="vex-say" id="vex-say" role="status" aria-live="polite"><b>VEX · ASSISTENTE</b><p id="vex-text"></p><div class="vex-chips" id="vex-chips"></div><button class="vex-x" id="vex-x" type="button" aria-label="Esconder o Vex">×</button></div>
   <button class="vex-bot" id="vex-bot" type="button" aria-label="Vex, o robô da Vexa. Clique para interagir">
     <svg viewBox="0 0 120 150" aria-hidden="true">
       <defs>
@@ -930,7 +947,7 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
         <g transform="translate(49 89) scale(.055)"><path d="M293 2H397L249 238H215L186 170Z" fill="#3a4f80"/><path d="M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z" fill="#2a6bff"/></g>
         <rect id="vx-core" x="52" y="106" width="16" height="3" rx="1.5" fill="#6c9eff" filter="url(#vx-glow)"/>
         <g id="vx-head">
-          <line x1="60" y1="17" x2="60" y2="6" stroke="#5c6f99" stroke-width="2" stroke-linecap="round"/>
+          <line id="vx-antl" x1="60" y1="17" x2="60" y2="6" stroke="#5c6f99" stroke-width="2" stroke-linecap="round"/>
           <circle id="vx-ant" cx="60" cy="5" r="4" fill="#6c9eff" filter="url(#vx-glow)"/>
           <circle cx="17" cy="46" r="6" fill="#141e3d" stroke="url(#vx-rim)" stroke-width="1.2"/>
           <circle cx="103" cy="46" r="6" fill="#141e3d" stroke="url(#vx-rim)" stroke-width="1.2"/>
@@ -945,6 +962,11 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
           <path id="vx-brows" d="M37 33l15 6M83 33l-15 6" stroke="#ff5a4a" stroke-width="3" stroke-linecap="round" fill="none" opacity="0" filter="url(#vx-glow)"/>
           <circle id="vx-blushL" cx="35" cy="56" r="3.5" fill="#ff6fa8" opacity="0"/>
           <circle id="vx-blushR" cx="85" cy="56" r="3.5" fill="#ff6fa8" opacity="0"/>
+          <g id="vx-c-natal" display="none"><path d="M24 22Q38 -8 70 -6Q90 -5 103 -13L106 -6Q99 8 96 22Z" fill="#e0263a" stroke="#9e1427" stroke-width="1"/><rect x="20" y="14" width="80" height="11" rx="5.5" fill="#f4f7ff"/><circle cx="105" cy="-11" r="6" fill="#f4f7ff"/></g>
+          <g id="vx-c-festa" display="none" transform="rotate(-8 60 20)"><path d="M44 20L60 -22L76 20Z" fill="#1f66ff" stroke="#6c9eff" stroke-width="1"/><path d="M48.5 9H71.5M52.7 -2H67.3M56.4 -12H63.6" stroke="#ffd84a" stroke-width="3"/><circle cx="60" cy="-23" r="4.6" fill="#ff6fa8"/><circle cx="52" cy="14" r="1.6" fill="#fff"/><circle cx="66" cy="3" r="1.4" fill="#fff"/></g>
+          <g id="vx-c-junina" display="none"><path d="M36 18Q36 -6 60 -6Q84 -6 84 18Z" fill="#e6b555" stroke="#a87a26" stroke-width="1"/><ellipse cx="60" cy="19" rx="50" ry="7" fill="#d9a441" stroke="#a87a26" stroke-width="1"/><path d="M36.6 11H83.4" stroke="#e0263a" stroke-width="4"/><rect x="66" y="-1" width="8" height="7" fill="#5b8def" transform="rotate(12 70 2)"/><path d="M20 20l-4 3M100 20l4 3M30 24l-2 4M90 24l2 4" stroke="#a87a26" stroke-width="1.2"/></g>
+          <g id="vx-c-bruxa" display="none"><path d="M38 18Q50 -4 56 -20Q60 -32 78 -34Q66 -26 70 -8Q74 6 82 18Z" fill="#2a1840" stroke="#7a4dff" stroke-width="1"/><ellipse cx="60" cy="19" rx="48" ry="6.5" fill="#2a1840" stroke="#7a4dff" stroke-width="1"/><path d="M41 11Q60 14 79 11L80 16Q60 19 40 16Z" fill="#ff8a1f"/></g>
+          <g id="vx-c-brasil" display="none"><line x1="60" y1="2" x2="60" y2="-22" stroke="#9fb0d6" stroke-width="1.6" stroke-linecap="round"/><g id="vx-flagw"><rect x="61" y="-22" width="24" height="16" rx="1" fill="#009c3b"/><path d="M63.5 -14L73 -20L82.5 -14L73 -8Z" fill="#ffdf00"/><circle cx="73" cy="-14" r="3.4" fill="#002776"/></g></g>
         </g>
       </g>
       <g id="vx-zzz" fill="#9cc2ff" font-family="JetBrains Mono, monospace" font-weight="700" opacity="0"><text>z</text><text>z</text><text>Z</text></g>
@@ -1273,7 +1295,7 @@ if ("IntersectionObserver" in window) {
 (function vexMascot() {
   const root = document.getElementById("vex");
   if (!root) return;
-  const bot = document.getElementById("vex-bot"), say = document.getElementById("vex-say"), textEl = document.getElementById("vex-text"), closeBtn = document.getElementById("vex-x");
+  const bot = document.getElementById("vex-bot"), say = document.getElementById("vex-say"), textEl = document.getElementById("vex-text"), closeBtn = document.getElementById("vex-x"), chipsEl = document.getElementById("vex-chips");
   const $ = id => document.getElementById(id);
   const all = $("vx-all"), head = $("vx-head"), armL = $("vx-armL"), armR = $("vx-armR"), eyeL = $("vx-eyeL"), eyeR = $("vx-eyeR"), mouth = $("vx-mouth"), fire = $("vx-fire"), shadow = $("vx-shadow"), ant = $("vx-ant"), core = $("vx-core"), blushL = $("vx-blushL"), blushR = $("vx-blushR");
   const brows = $("vx-brows"), gun = $("vx-gun"), muzzle = $("vx-muzzle"), zg = $("vx-zzz"), zt = Array.prototype.slice.call(zg.querySelectorAll("text")), meltMap = $("vx-melt-map");
@@ -1286,6 +1308,116 @@ if ("IntersectionObserver" in window) {
   const rnd = (a, b) => a + Math.random() * (b - a);
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  /* ---------- sons (sintetizados, desligados por padrão) ---------- */
+  const sfx = (function () {
+    let ctx = null, master = null, on = false;
+    try { on = localStorage.getItem("vex-som") === "1"; } catch (e) {}
+    function ensure() {
+      if (!on) return null;
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = .16; master.connect(ctx.destination);
+      }
+      if (ctx.state === "suspended") ctx.resume();
+      return ctx;
+    }
+    function tone(type, f0, f1, dur, vol, delay) {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol || .4, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .03);
+    }
+    function noise(dur, vol, freq, delay) {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime + (delay || 0), n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = b; f.type = "lowpass"; f.frequency.value = freq || 1200;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol || .3, t + dur * .3); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t);
+    }
+    return {
+      isOn: () => on,
+      set: v => { on = v; try { localStorage.setItem("vex-som", v ? "1" : "0"); } catch (e) {} if (v) ensure(); },
+      unlock: () => { if (on) ensure(); },
+      bip: () => { tone("sine", 880, 0, .07, .3); tone("sine", 1320, 0, .08, .25, .08); },
+      pew: () => tone("sawtooth", 1700, 160, .16, .2),
+      boing: () => tone("sine", 160, 640, .25, .4),
+      thud: () => { tone("sine", 130, 50, .2, .55); noise(.08, .2, 700); },
+      snore: () => { noise(1.1, .22, 300); tone("sine", 72, 58, 1, .1); },
+      pop: () => tone("square", 600, 1500, .08, .22),
+      sneeze: () => noise(.35, .5, 3200),
+      tada: () => [523, 659, 784, 1047].forEach((f, i) => tone("triangle", f, 0, .24, .32, i * .1)),
+      glitch: () => { for (let i = 0; i < 7; i++) tone("square", 200 + Math.random() * 1800, 0, .04, .16, i * .05); },
+      party: () => [523, 659, 784, 659, 880, 784, 659, 1047].forEach((f, i) => tone("triangle", f, 0, .16, .28, i * .14)),
+      wow: () => tone("sine", 420, 950, .15, .28)
+    };
+  })();
+  window.addEventListener("pointerdown", () => sfx.unlock(), { passive: true });
+
+  /* ---------- fantasias por data (teste: adicione ?vex=natal, festa, junina, bruxa ou brasil no endereço) ---------- */
+  const JOGOS_DO_BRASIL = []; /* datas de jogo da seleção, ex.: "2026-11-15" */
+  function easter(y) {
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
+  }
+  function pickCostume() {
+    const q = (location.search.match(/[?&]vex=([a-z]+)/) || [])[1];
+    if (q) return q;
+    const d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+    const iso = d.getFullYear() + "-" + String(m).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    if (JOGOS_DO_BRASIL.indexOf(iso) >= 0) return "brasil";
+    if ((m === 12 && day === 31) || (m === 1 && day === 1)) return "anonovo";
+    if (m === 12 || (m === 1 && day <= 6)) return "natal";
+    const today = new Date(d.getFullYear(), m - 1, day), diff = Math.round((today - easter(d.getFullYear())) / 864e5);
+    if (diff >= -51 && diff <= -46) return "carnaval";
+    if (m === 6 || (m === 7 && day <= 10)) return "junina";
+    if (m === 10 && day >= 10 && day <= 12) return "criancas";
+    if (m === 10 && day >= 24) return "bruxa";
+    if (m === 9 && day <= 7) return "brasil";
+    return "";
+  }
+  const COSTUME = pickCostume();
+  const COSTUME_ART = { natal: "natal", anonovo: "festa", carnaval: "festa", criancas: "festa", festa: "festa", junina: "junina", bruxa: "bruxa", brasil: "brasil" };
+  const COSTUME_MSG = {
+    natal: "Ho ho ho! Feliz Natal da Vexa! Pedi um site novo pro Papai Noel.",
+    anonovo: "Feliz ano novo! Que o seu site bata todas as metas.",
+    carnaval: "É Carnaval! Eu sambo melhor que muita gente, viu?",
+    criancas: "Feliz Dia das Crianças! Ganhei bateria nova de presente.",
+    junina: "Arraiá da Vexa! Bora pular fogueira? (De longe, eu sou eletrônico.)",
+    bruxa: "Gostosuras ou travessuras? Eu prefiro códigos.",
+    brasil: "Vai, Brasil! Hoje eu tô de verde e amarelo."
+  };
+  let costumeNow = "";
+  function wearCostume(name) {
+    const art = COSTUME_ART[name] || "";
+    costumeNow = art;
+    ["natal", "festa", "junina", "bruxa", "brasil"].forEach(k => { const g = $("vx-c-" + k); if (g) g.setAttribute("display", k === art ? "inline" : "none"); });
+    const hideAnt = art && art !== "brasil";
+    ant.setAttribute("display", hideAnt ? "none" : "inline"); $("vx-antl").setAttribute("display", hideAnt ? "none" : "inline");
+  }
+  wearCostume(COSTUME);
+
+  /* ---------- visitas ---------- */
+  let visits = 0, lastVisit = 0;
+  try {
+    visits = +localStorage.getItem("vex-visitas") || 0; lastVisit = +localStorage.getItem("vex-ultima") || 0;
+    if (!lastVisit || Date.now() - lastVisit > 30 * 60000) localStorage.setItem("vex-visitas", String(visits + 1));
+    localStorage.setItem("vex-ultima", String(Date.now()));
+  } catch (e) {}
+  function returningLine() {
+    if (!visits || !lastVisit) return "";
+    const gap = Date.now() - lastVisit;
+    if (gap < 30 * 60000) return "De volta tão rápido? Gostei!";
+    if (gap > 7 * 864e5) return "Quanto tempo! Achei que você tinha me esquecido.";
+    if (visits + 1 >= 3) return "Já é sua " + (visits + 1) + "ª visita. Tá virando de casa!";
+    return "Você de novo! Senti sua falta.";
+  }
 
   /* ---------- falas ---------- */
   const L = {
@@ -1358,16 +1490,27 @@ if ("IntersectionObserver" in window) {
 
   /* ---------- fala ---------- */
   let sayTimer = 0, typeTimer = 0, lastSay = 0;
-  function speak(msg, ms, force) {
+  function speak(msg, ms, force, chips) {
     const now = performance.now();
     if (!force && now - lastSay < 2500) return;
     lastSay = now;
     clearTimeout(sayTimer); clearInterval(typeTimer);
+    clearChips();
     say.classList.add("show");
-    if (reduce) textEl.textContent = msg;
+    const showChips = () => {
+      if (!chips) return;
+      say.classList.add("has-chips");
+      chips.forEach(o => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "vex-chip" + (o.main ? " main" : ""); b.textContent = o.l;
+        b.addEventListener("click", e => { e.stopPropagation(); sfx.bip(); askTok++; clearChips(); st.busy = null; o.f(); });
+        chipsEl.appendChild(b);
+      });
+    };
+    if (reduce) { textEl.textContent = msg; showChips(); }
     else {
       let i = 0; textEl.textContent = "";
-      typeTimer = setInterval(() => { i++; textEl.textContent = msg.slice(0, i); if (i >= msg.length) clearInterval(typeTimer); }, 22);
+      typeTimer = setInterval(() => { i += msg.length > 90 ? 2 : 1; textEl.textContent = msg.slice(0, i); if (i >= msg.length) { clearInterval(typeTimer); showChips(); } }, 20);
     }
     sayTimer = setTimeout(() => say.classList.remove("show"), ms || 4200);
   }
@@ -1393,6 +1536,8 @@ if ("IntersectionObserver" in window) {
   let suppressClick = false, throwTimes = [], anger = 0;
   bot.addEventListener("pointerdown", e => {
     if (e.button !== 0 || st.off) return;
+    if (ph.mode === "game") { gameHit(); return; }
+    if (game.on) return;
     measure();
     ph.pid = e.pointerId; ph.downX = e.clientX; ph.downY = e.clientY; ph.moved = false;
     ph.grabX = e.clientX - (ph.baseL + ph.ox); ph.grabY = e.clientY - (ph.baseT + ph.oy);
@@ -1421,7 +1566,7 @@ if ("IntersectionObserver" in window) {
     cancelGag(); activity();
     ph.mode = "drag"; ph.vx = ph.vy = 0; ph.shakeSaid = false;
     root.classList.add("drag");
-    setMood("wow", 60000);
+    setMood("wow", 60000); sfx.wow();
     speak(pick(L.grab), 2600, true);
   }
   function release() {
@@ -1442,6 +1587,7 @@ if ("IntersectionObserver" in window) {
   function goHome() { ph.mode = "home"; ph.t = 0; ph.fx = ph.ox; ph.fy = ph.oy; ph.fr = ph.rot; }
   function impact(v, x, y) {
     sparkBurst(x, y, Math.min(26, 6 + v / 90), "255,210,140", v * .35);
+    if (v > 900) sfx.thud(); else if (v > 350) sfx.boing();
     if (v > 900 && !ph.hit) { ph.hit = true; setMood("dizzy", 2600); speak(pick(L.ouch), 2800, true); blush(900); }
   }
   function physics(dt, now) {
@@ -1478,6 +1624,19 @@ if ("IntersectionObserver" in window) {
       ph.ox = ph.fx * (1 - e); ph.oy = ph.fy * (1 - e) - Math.sin(Math.PI * e) * Math.min(90, 20 + Math.abs(ph.fx) * .15);
       ph.rot = ph.fr * (1 - e);
       if (ph.t >= 1) { ph.mode = "dock"; ph.ox = ph.oy = ph.rot = 0; }
+    } else if (ph.mode === "game") {
+      game.t += dt;
+      if (Math.random() < dt * .9) { const a = Math.atan2(ph.vy, ph.vx) + rnd(-1.2, 1.2); ph.vx = Math.cos(a) * game.speed; ph.vy = Math.sin(a) * game.speed; }
+      ph.ox += ph.vx * dt; ph.oy += ph.vy * dt;
+      const b = bounds(), top = b.y0 + 56;
+      if (ph.ox < b.x0) { ph.ox = b.x0; ph.vx = Math.abs(ph.vx); }
+      if (ph.ox > b.x1) { ph.ox = b.x1; ph.vx = -Math.abs(ph.vx); }
+      if (ph.oy < top) { ph.oy = top; ph.vy = Math.abs(ph.vy); }
+      if (ph.oy > b.y1) { ph.oy = b.y1; ph.vy = -Math.abs(ph.vy); }
+      ph.rot = Math.sin(now / 90) * 10;
+      const left = String(Math.max(0, Math.ceil(game.dur - game.t))), ht = $("vx-ht");
+      if (ht && ht.textContent !== left) ht.textContent = left;
+      if (game.t >= game.dur) endGame(false);
     } else if (ph.mode === "drag") {
       const s = ph.samples;
       if (s.length > 1) {
@@ -1490,7 +1649,7 @@ if ("IntersectionObserver" in window) {
   }
 
   /* ---------- efeitos (laser, faíscas, derretimento) ---------- */
-  const fx = { cv: null, c: null, dpr: 1, marks: [], drips: [], sparks: [], beam: null, repair: null, el: null, saved: null, melt: 0, on: false };
+  const fx = { cv: null, c: null, dpr: 1, marks: [], drips: [], sparks: [], confetti: [], beam: null, repair: null, el: null, saved: null, melt: 0, on: false };
   function fxEnsure() {
     if (fx.cv) return;
     const cv = document.createElement("canvas");
@@ -1575,6 +1734,8 @@ if ("IntersectionObserver" in window) {
       const g = c.createRadialGradient(px, py, 0, px, py, 34 * fl);
       g.addColorStop(0, "rgba(255,240,200,.95)"); g.addColorStop(.3, "rgba(255,120,40,.6)"); g.addColorStop(1, "rgba(255,40,0,0)");
       c.fillStyle = g; c.beginPath(); c.arc(px, py, 34 * fl, 0, Math.PI * 2); c.fill();
+      b.snd = (b.snd || 0) - dt;
+      if (b.snd <= 0) { b.snd = .17; sfx.pew(); }
       b.acc += dt;
       while (b.acc > .028) {
         b.acc -= .028;
@@ -1633,6 +1794,19 @@ if ("IntersectionObserver" in window) {
       c.beginPath(); c.moveTo(x, y); c.lineTo(x - p.vx * .025, y - p.vy * .025); c.stroke();
     }
     fx.sparks = fx.sparks.filter(p => p.life > 0);
+    c.globalCompositeOperation = "source-over";
+    for (const p of fx.confetti) {
+      p.life -= dt; p.vy = Math.min(p.vy + 200 * dt, 340); p.vx += Math.sin(p.r * 2) * 30 * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt;
+      const x = p.x - sx, y = p.y - sy;
+      if (y > H + 20) p.life = 0;
+      if (p.life <= 0 || y < -40) continue;
+      const k = Math.abs(Math.cos(p.r * 1.3));
+      c.save(); c.translate(x, y); c.rotate(p.r);
+      c.fillStyle = "rgba(" + p.c + "," + Math.min(1, p.life) + ")"; c.fillRect(-p.w / 2, -p.h * k / 2, p.w, p.h * k + .6);
+      c.restore();
+    }
+    fx.confetti = fx.confetti.filter(p => p.life > 0);
     if (rp) {
       const y = scanY - sy, x0 = 0, x1 = W;
       const g = c.createLinearGradient(0, y - 46, 0, y + 4);
@@ -1642,7 +1816,7 @@ if ("IntersectionObserver" in window) {
       if (rp.t >= rp.dur) { fx.repair = null; fx.marks = []; fx.drips = []; meltEnd(); }
     }
     if (fx.el) meltApply();
-    fx.on = !!(fx.beam || fx.repair || fx.sparks.length || fx.marks.length || fx.drips.length);
+    fx.on = !!(fx.beam || fx.repair || fx.sparks.length || fx.confetti.length || fx.marks.length || fx.drips.length);
     if (!fx.on) c.clearRect(0, 0, W, H);
   }
 
@@ -1651,6 +1825,8 @@ if ("IntersectionObserver" in window) {
   const born = performance.now();
   let nextGag = born + 30000;
   function cancelGag() {
+    askTok++; clearChips();
+    if (game.on) endGame(true);
     if (!st.busy) return;
     gagTok++;
     st.dance = 0; st.glitch = 0; st.tiltOv = null; st.gunWant = 0; st.aim = null; st.pointAt = null;
@@ -1691,15 +1867,15 @@ if ("IntersectionObserver" in window) {
   }
   async function gagDance() {
     const tok = ++gagTok; st.busy = "dance"; st.dance = 1;
-    setMood("happy", 4300); speak(pick(L.dance), 3800, true);
+    setMood("happy", 4300); speak(pick(L.dance), 3800, true); sfx.party();
     await wait(4300); if (tok !== gagTok) return;
     st.dance = 0; st.busy = null;
   }
   async function gagGlitch() {
     const tok = ++gagTok; st.busy = "glitch"; st.glitch = 1;
-    setMood("glitch", 3200); speak("Atualizando o Vex… 12%", 1200, true);
+    setMood("glitch", 3200); speak("Atualizando o Vex… 12%", 1200, true); sfx.glitch();
     await wait(1000); if (tok !== gagTok) return;
-    speak("Atualizando o Vex… 99%", 1200, true);
+    speak("Atualizando o Vex… 99%", 1200, true); sfx.glitch();
     await wait(1000); if (tok !== gagTok) return;
     speak("…99%… 99%… 99%…", 1400, true);
     await wait(1200); if (tok !== gagTok) return;
@@ -1711,14 +1887,14 @@ if ("IntersectionObserver" in window) {
     const tok = ++gagTok; st.busy = "sneeze";
     setMood("wow", 1600); st.tiltOv = -12; speak("Ah… ahh… aaah…", 1600, true);
     await wait(1400); if (tok !== gagTok) return;
-    st.tiltOv = 10; st.jump = 1; setMood("closed", 600); speak("ATCHIM!", 1400, true);
+    st.tiltOv = 10; st.jump = 1; setMood("closed", 600); speak("ATCHIM!", 1400, true); sfx.sneeze();
     const a = ant.getBoundingClientRect(); sparkBurst(a.left + a.width / 2, a.top + a.height / 2, 18, "150,190,255", 320);
     await wait(700); if (tok !== gagTok) return;
     st.tiltOv = null; setMood("happy", 2500); blush(1400);
     speak("Saúde pra mim! Acho que peguei um vírus. Relaxa, tenho antivírus.", 3800, true);
     st.busy = null;
   }
-  function gagBackflip() { st.jump = 1; st.spin = 1; setMood("happy", 2000); speak(pick(L.backflip), 3000, true); }
+  function gagBackflip() { sfx.boing(); st.jump = 1; st.spin = 1; setMood("happy", 2000); speak(pick(L.backflip), 3000, true); }
   function gagJoke() { st.wave = 1; setMood("happy", 2400); speak(pick(L.jokes), 5200, true); }
   function randomGag() {
     const now = performance.now();
@@ -1733,8 +1909,154 @@ if ("IntersectionObserver" in window) {
     st.lastAct = performance.now();
     if (!was) return;
     st.sleep = 0;
-    if (was >= 2) { setMood("wow", 1500); st.jump = 1; blush(1200); speak(pick(L.wake), 3800, true); }
+    if (was >= 2) { setMood("wow", 1500); st.jump = 1; blush(1200); sfx.wow(); speak(pick(L.wake), 3800, true); }
     else { setMood("wow", 800); speak(pick(["Opa! Tô acordado, tô acordado!", "Hã? Eu? Dormindo? Nunca."]), 2800, true); }
+  }
+
+
+  /* ---------- perguntas com botões (menu, atendente) ---------- */
+  let askTok = 0;
+  function clearChips() { chipsEl.textContent = ""; say.classList.remove("has-chips"); }
+  function ask(msg, opts, name, ms) {
+    const tok = ++askTok, life = ms || 22000;
+    st.busy = name || "menu";
+    speak(msg, life, true, opts);
+    setTimeout(() => { if (tok === askTok && st.busy === (name || "menu")) { st.busy = null; clearChips(); } }, life);
+  }
+  function closeAsk() { askTok++; clearChips(); if (st.busy === "menu" || st.busy === "chat" || st.busy === "offer") st.busy = null; say.classList.remove("show"); }
+  function soundLabel() { return sfx.isOn() ? "Som: ligado" : "Som: desligado"; }
+  function menu(line) {
+    ask(line, [
+      { l: "Quero um orçamento", main: true, f: atendente },
+      { l: "Jogar um minijogo", f: startGame },
+      { l: "Conta uma piada", f: () => { st.busy = null; gagJoke(); } },
+      { l: soundLabel(), f: () => { sfx.set(!sfx.isOn()); if (sfx.isOn()) { sfx.tada(); setMood("happy", 1500); speak("Som ligado! Agora você me escuta. Bip bup!", 3000, true); } else speak("Som desligado. Volto a ser um robô silencioso.", 3000, true); st.busy = null; } },
+      { l: "Fechar", f: closeAsk }
+    ], "menu", 16000);
+  }
+  function noThanks() { st.busy = null; speak(pick(["Beleza! Tô aqui se precisar.", "Sem pressa. Qualquer coisa é só clicar em mim."]), 2800, true); }
+
+  /* atendente: monta a mensagem para o WhatsApp */
+  function atendente() {
+    const ans = {};
+    st.wave = 1; setMood("happy", 2000);
+    ask("Bora montar seu pedido! Qual é o seu tipo de negócio?", ["Loja ou comércio", "Prestador de serviço", "Restaurante ou delivery", "Saúde ou beleza", "Outro"].map(v => ({ l: v, f: () => { ans.neg = v; step2(); } })), "chat", 60000);
+    function step2() {
+      setMood("wow", 1200);
+      ask("Show! E do que você precisa?", ["Site", "Anúncios e tráfego", "Automação", "Redes sociais", "Ainda não sei"].map(v => ({ l: v, f: () => { ans.need = v; step3(); } })), "chat", 60000);
+    }
+    function step3() {
+      ask("Última: pra quando?", ["É urgente", "Nas próximas semanas", "Só pesquisando"].map(v => ({ l: v, f: () => { ans.when = v; done(); } })), "chat", 60000);
+    }
+    function done() {
+      const msg = "Olá, Vexa Digital! Vim pelo site e o Vex me ajudou a montar esta mensagem. Meu negócio: " + ans.neg.toLowerCase() + ". Preciso de: " + ans.need.toLowerCase() + ". Prazo: " + ans.when.toLowerCase() + ".";
+      setMood("love", 2500); st.jump = 1; sfx.tada();
+      ask("Prontinho! Negócio: " + ans.neg + " · Precisa: " + ans.need + " · Prazo: " + ans.when + ". Abro o WhatsApp com essa mensagem?", [
+        { l: "Abrir WhatsApp", main: true, f: () => { st.busy = null; window.open(waLink(msg), "_blank", "noopener"); speak("Uhul! Te vejo no WhatsApp.", 3000, true); } },
+        { l: "Recomeçar", f: atendente },
+        { l: "Agora não", f: noThanks }
+      ], "chat", 60000);
+    }
+  }
+
+  /* ---------- minijogo: pega o Vex ---------- */
+  const game = { on: false, score: 0, t: 0, dur: 20, speed: 520, hud: null };
+  function startGame() {
+    cancelGag(); clearChips(); activity();
+    if (ph.mode !== "dock" && ph.mode !== "rest") return;
+    st.busy = "game"; game.on = true; game.score = 0; game.t = 0; game.speed = 520;
+    measure();
+    const hud = document.createElement("div");
+    hud.className = "vx-hud"; hud.setAttribute("role", "status");
+    hud.innerHTML = '<span class="vx-hud-t">PEGA O VEX</span><span>Pontos <b id="vx-hs">0</b></span><span>Tempo <b id="vx-ht">20</b>s</span><button type="button" id="vx-hq">Sair</button>';
+    document.body.appendChild(hud); game.hud = hud;
+    $("vx-hq").addEventListener("click", () => endGame(true));
+    setMood("evil", 1600); sfx.tada();
+    speak("Valendo! Clica em mim se for capaz!", 1500, true);
+    root.classList.add("game");
+    setTimeout(() => {
+      if (!game.on) return;
+      const a = Math.PI + rnd(-.9, .9);
+      ph.vx = Math.cos(a) * game.speed; ph.vy = Math.sin(a) * game.speed; ph.mode = "game";
+      say.classList.remove("show");
+    }, 900);
+  }
+  function gameHit() {
+    game.score++; sfx.pop();
+    const r = bot.getBoundingClientRect();
+    sparkBurst(r.left + r.width / 2, r.top + r.height / 2, 14, "108,158,255", 320);
+    setMood(pick(["dizzy", "wow", "angry"]), 500); blush(500);
+    game.speed = Math.min(1500, game.speed + 70);
+    const a = Math.random() * Math.PI * 2;
+    ph.vx = Math.cos(a) * game.speed; ph.vy = Math.sin(a) * game.speed;
+    $("vx-hs").textContent = game.score;
+  }
+  function endGame(quit) {
+    if (!game.on) return;
+    game.on = false; root.classList.remove("game");
+    if (game.hud) { game.hud.remove(); game.hud = null; }
+    goHome(); st.busy = null;
+    if (quit) { speak("Desistiu? Tudo bem, eu sou rápido mesmo.", 3000, true); return; }
+    let rec = 0;
+    try { rec = +localStorage.getItem("vex-recorde") || 0; } catch (e) {}
+    const s = game.score;
+    let line;
+    if (s > rec) { try { localStorage.setItem("vex-recorde", String(s)); } catch (e) {} line = "Novo recorde: " + s + (s === 1 ? " ponto" : " pontos") + "! Você é rápido, hein."; setMood("love", 2600); sfx.tada(); }
+    else line = "Você fez " + s + (s === 1 ? " ponto" : " pontos") + ". O recorde é " + rec + ". Bora de novo?";
+    setTimeout(() => ask(line, [{ l: "Jogar de novo", main: true, f: startGame }, { l: "Chega por hoje", f: closeAsk }], "menu", 14000), 1300);
+  }
+
+  /* ---------- modo festa (código Konami ou "festa") ---------- */
+  let disco = null;
+  async function party() {
+    if (st.busy === "party" || ph.mode !== "dock" || st.off) return;
+    cancelGag(); activity();
+    const tok = ++gagTok; st.busy = "party"; st.dance = 1;
+    const prevCostume = costumeNow; wearCostume("festa");
+    setMood("love", 9000); st.jump = 1;
+    speak("MODO FESTA ATIVADO! Você achou o código secreto!", 4000, true);
+    if (!disco) { disco = document.createElement("div"); disco.className = "vx-disco"; disco.setAttribute("aria-hidden", "true"); document.body.appendChild(disco); }
+    requestAnimationFrame(() => disco.classList.add("on"));
+    for (let i = 0; i < 8; i++) {
+      if (tok !== gagTok) break;
+      if (i % 2 === 0) sfx.party();
+      confetti(70);
+      await wait(1100);
+    }
+    disco.classList.remove("on");
+    wearCostume(Object.keys(COSTUME_ART).find(k => COSTUME_ART[k] === prevCostume) || "");
+    if (tok !== gagTok) return;
+    st.dance = 0; st.busy = null; setMood("happy", 2000);
+    speak("Ufa! Que festa. Agora de volta ao trabalho!", 3200, true);
+  }
+  function confetti(n) {
+    if (reduce) return;
+    fxEnsure();
+    const cols = ["255,0,128", "0,229,255", "255,216,74", "108,158,255", "0,200,120", "255,111,168"];
+    for (let i = 0; i < n; i++) fx.confetti.push({ x: rnd(0, innerWidth) + scrollX, y: scrollY - rnd(10, 160), vx: rnd(-60, 60), vy: rnd(120, 300), r: rnd(0, 6.28), vr: rnd(-8, 8), w: rnd(5, 10), h: rnd(3, 6), c: pick(cols), life: 4 });
+  }
+
+  /* ---------- tempo de leitura por seção ---------- */
+  const READ = {
+    servicos: { s: 22, f: () => ask("Tá de olho nos serviços, hein? Quer que eu monte seu pedido pro WhatsApp em 3 cliques?", [{ l: "Bora!", main: true, f: atendente }, { l: "Agora não", f: noThanks }], "offer", 16000) },
+    diagnostico: { s: 25, f: () => ask("Achou a sua situação aí? Posso montar a mensagem pra você.", [{ l: "Monta pra mim", main: true, f: atendente }, { l: "Agora não", f: noThanks }], "offer", 16000) },
+    processo: { s: 25, f: () => ask("Curtiu o jeito que a gente trabalha? Que tal conversar com o time?", [{ l: "Quero conversar", main: true, f: atendente }, { l: "Agora não", f: noThanks }], "offer", 16000) },
+    faq: { s: 25, f: () => ask("Ficou alguma dúvida que não tá aqui? Pergunta direto pra gente!", [{ l: "Falar no WhatsApp", main: true, f: () => { st.busy = null; window.open(waLink(GENERAL_MESSAGE), "_blank", "noopener"); } }, { l: "Agora não", f: noThanks }], "offer", 16000) },
+    tecnologias: { s: 20, f: () => { st.wave = 1; setMood("love", 2000); speak("Curte tecnologia também? Então já somos amigos.", 3600, true); } }
+  };
+  const inView = {}, readT = {}, readDone = {};
+  let readOffers = 0;
+  if ("IntersectionObserver" in window) {
+    const rio = new IntersectionObserver(es => es.forEach(e => { inView[e.target.id] = e.isIntersecting && e.intersectionRatio >= .3; }), { threshold: [0, .3, .6] });
+    Object.keys(READ).forEach(id => { const el = document.getElementById(id); if (el) rio.observe(el); });
+  }
+  function readTick(dt, idle) {
+    if (st.busy || st.off || ph.mode !== "dock" || st.sleep || document.hidden || idle > 12 || readOffers >= 2) return;
+    for (const id in inView) {
+      if (!inView[id] || readDone[id]) continue;
+      readT[id] = (readT[id] || 0) + dt;
+      if (readT[id] > READ[id].s && performance.now() - lastSay > 3000) { readDone[id] = 1; readOffers++; READ[id].f(); return; }
+    }
   }
 
   let lastX = 0, lastY = 0, lastT = 0, shake = 0;
@@ -1766,14 +2088,23 @@ if ("IntersectionObserver" in window) {
     }
   }, { passive: true });
 
-  /* código secreto: digite "laser" ou "dança" */
-  let keyBuf = "";
+  /* códigos secretos: "laser", "dança", "festa", "jogo" e o código Konami */
+  const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+  let keyBuf = "", kIdx = 0;
   window.addEventListener("keydown", e => {
     if (e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) return;
-    if (!e.key || e.key.length !== 1) return;
-    keyBuf = (keyBuf + e.key.toLowerCase()).slice(-6);
-    if (/laser$/.test(keyBuf)) { keyBuf = ""; if (!st.busy && ph.mode === "dock") laserGag(true); }
-    else if (/dan[cç]a$/.test(keyBuf)) { keyBuf = ""; if (!st.busy && ph.mode === "dock") gagDance(); }
+    if (!e.key || st.off) return;
+    if (e.key === "Escape") { if (game.on) endGame(true); else if (st.busy === "menu" || st.busy === "chat" || st.busy === "offer") closeAsk(); return; }
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === KONAMI[kIdx]) { kIdx++; if (kIdx === KONAMI.length) { kIdx = 0; party(); return; } }
+    else kIdx = k === KONAMI[0] ? 1 : 0;
+    if (e.key.length !== 1) return;
+    keyBuf = (keyBuf + k).slice(-6);
+    const free = !st.busy && ph.mode === "dock";
+    if (/laser$/.test(keyBuf)) { keyBuf = ""; if (free) laserGag(true); }
+    else if (/dan[cç]a$/.test(keyBuf)) { keyBuf = ""; if (free) gagDance(); }
+    else if (/festa$/.test(keyBuf)) { keyBuf = ""; party(); }
+    else if (/jogo$/.test(keyBuf)) { keyBuf = ""; if (free) startGame(); }
   });
 
   /* texto selecionado */
@@ -1838,7 +2169,8 @@ if ("IntersectionObserver" in window) {
   let clicks = 0, clickTimes = [];
   bot.addEventListener("click", () => {
     if (suppressClick) { suppressClick = false; return; }
-    if (st.busy === "laser") return;
+    if (game.on || st.busy === "laser" || st.busy === "party") return;
+    sfx.bip();
     activity();
     const now = performance.now();
     clickTimes = clickTimes.filter(t => now - t < 3500); clickTimes.push(now);
@@ -1852,7 +2184,7 @@ if ("IntersectionObserver" in window) {
     st.jump = 1; st.spin = clicks % 3 === 0 ? 1 : 0;
     setMood(clicks % 3 === 0 ? "dizzy" : "happy", 1600);
     blush();
-    speak(clicks % 3 === 0 ? "Uau, um giro completo! Tô tonto…" : L.click[(clicks - 1) % L.click.length], 3600, true);
+    menu(clicks % 3 === 0 ? "Uau, um giro completo! Tô tonto… Mas me diz, o que você quer fazer?" : L.click[(clicks - 1) % L.click.length]);
   });
   bot.addEventListener("pointerenter", () => { if (!touch && !st.busy && ph.mode === "dock" && !st.sleep) { setMood("happy", 1500); st.wave = 1; if (Math.random() < .5) speak("Oi! Pode clicar em mim. Ou me arrastar.", 2600); } });
   closeBtn.addEventListener("click", e => {
@@ -1893,8 +2225,12 @@ if ("IntersectionObserver" in window) {
   setTimeout(() => {
     const h = new Date().getHours();
     const hi = h < 5 ? "Acordado essa hora? Eu também." : h < 12 ? "Bom dia!" : h < 18 ? "Boa tarde!" : "Boa noite!";
+    const hint = touch ? "Toca em mim pra abrir o menu, ou me arrasta pela tela!" : "Clica em mim pra abrir o menu. Ou me arrasta e me joga!";
+    const cm = COSTUME_MSG[COSTUME] || "", rl = returningLine();
     st.wave = 1; setMood("happy", 2000);
-    speak(hi + " Eu sou o Vex, o robô da Vexa. " + (touch ? "Pode me arrastar pela tela!" : "Pode clicar, me arrastar e até me jogar."), 5600, true);
+    if (cm) { st.jump = 1; confetti(40); }
+    speak(cm || (rl ? hi + " " + rl : hi + " Eu sou o Vex, o robô da Vexa."), 5200, true);
+    setTimeout(() => { if (!st.busy && !st.sleep && ph.mode === "dock") speak(cm && rl ? rl + " " + hint : hint, 5200, true); }, 5800);
   }, 2400);
 
   /* ---------- animação ---------- */
@@ -1905,7 +2241,8 @@ if ("IntersectionObserver" in window) {
     if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + .9375;
     return n * (x -= 2.625 / d) * x + .984375;
   }
-  let prev = performance.now(), zMode = "";
+  let prev = performance.now(), zMode = "", nextSnore = 0;
+  const flagW = $("vx-flagw");
   function frame(now) {
     const dt = Math.min(.05, (now - prev) / 1000); prev = now;
     const t = now / 1000;
@@ -1921,7 +2258,7 @@ if ("IntersectionObserver" in window) {
       if (st.fallP < 1) {
         st.fallP = Math.min(1, st.fallP + dt * 1.15);
         if (st.fallP >= 1 && !st.fellSaid) {
-          st.fellSaid = true; speak(pick(L.fall), 3600, true);
+          st.fellSaid = true; speak(pick(L.fall), 3600, true); sfx.thud();
           const r = bot.getBoundingClientRect(); sparkBurst(r.left + r.width * .2, r.bottom - 8, 10, "150,170,210", 160);
         }
       }
@@ -1936,6 +2273,9 @@ if ("IntersectionObserver" in window) {
     const baseMood = st.sleep === 1 ? "sleepy" : st.sleep >= 2 ? "closed" : "normal";
     if (now > st.moodUntil) st.mood = baseMood;
     physics(dt, now);
+    readTick(dt, idle);
+    if (st.sleep >= 2 && now > nextSnore) { nextSnore = now + 2800; sfx.snore(); }
+    if (costumeNow === "brasil") flagW.setAttribute("transform", "translate(61 -14) skewY(" + (Math.sin(t * 6) * 7).toFixed(1) + ") translate(-61 14)");
 
     /* para onde olhar */
     const r = bot.getBoundingClientRect();
@@ -2006,7 +2346,7 @@ if ("IntersectionObserver" in window) {
     let fr = 12 + Math.sin(t * 22) * 2.5 + (st.jump > 0 ? 8 : 0), fo = .75 + Math.sin(t * 31) * .2;
     if (ph.mode === "drag") fr += rnd(6, 12);
     if (ph.mode === "fly" || ph.mode === "rest") fo *= .12;
-    if (ph.mode === "home") fr += 10;
+    if (ph.mode === "home" || ph.mode === "game") fr += 10;
     if (st.sleep >= 2) { fo *= .35; fr *= .6; }
     fo *= 1 - st.fallP;
     fire.setAttribute("ry", fr.toFixed(2)); fire.setAttribute("opacity", Math.max(0, fo).toFixed(2));
@@ -2017,7 +2357,7 @@ if ("IntersectionObserver" in window) {
     /* braços */
     if (st.stretch > 0) st.stretch = Math.max(0, st.stretch - dt * .55);
     let aL, aR;
-    if (ph.mode === "drag" || ph.mode === "fly") { aL = 105 + Math.sin(t * 19) * 22; aR = -105 - Math.sin(t * 19 + 1.3) * 22; }
+    if (ph.mode === "drag" || ph.mode === "fly" || ph.mode === "game") { aL = 105 + Math.sin(t * 19) * 22; aR = -105 - Math.sin(t * 19 + 1.3) * 22; }
     else if (st.dance) { aL = 60 + Math.sin(t * 8) * 45; aR = -60 + Math.sin(t * 8) * 45; }
     else if (st.stretch > 0) { const s = Math.sin(Math.PI * Math.min(1, st.stretch * 1.2)); aL = 100 * s; aR = -100 * s; }
     else if (st.sleep >= 2) { aL = -42; aR = 34; }
@@ -2069,7 +2409,7 @@ if ("IntersectionObserver" in window) {
     }
 
     root.classList.toggle("fallen", st.fallP > .05);
-    if (fx.cv && (fx.on || fx.beam || fx.repair || fx.sparks.length)) fxStep(dt);
+    if (fx.cv && (fx.on || fx.beam || fx.repair || fx.sparks.length || fx.confetti.length)) fxStep(dt);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
