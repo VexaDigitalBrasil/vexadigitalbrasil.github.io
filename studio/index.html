@@ -1,0 +1,1639 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#03050b">
+<title>Vex Studio</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 245'%3E%3Cpath d='M293 2H397L249 238H215L186 170Z' fill='%234c618f'/%3E%3Cpath d='M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z' fill='%232a6dff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap">
+<style>
+:root{
+  --ink:#03050b;--ink-2:#070b17;--panel:rgba(10,15,32,.72);--panel-solid:#0a0f20;
+  --line:rgba(128,160,255,.12);--line-strong:rgba(128,160,255,.24);
+  --fg:#eef2ff;--muted:#9aa8c7;--dim:#66749a;
+  --blue:#1f66ff;--blue-hi:#6c9eff;--blue-deep:#0b2fa8;--ok:#22c55e;--warn:#ffb020;--bad:#ff5a6a;
+  --font-display:"Archivo",system-ui,sans-serif;--font-body:"Instrument Sans",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --r:14px;--ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+::selection{background:rgba(31,102,255,.45)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* fundo vivo */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(80px);opacity:.5}
+.glow.a{width:620px;height:620px;right:-180px;top:-220px;background:radial-gradient(closest-side,rgba(31,102,255,.55),transparent)}
+.glow.b{width:520px;height:520px;left:-200px;bottom:-240px;background:radial-gradient(closest-side,rgba(76,97,143,.45),transparent)}
+
+/* ---------- login ---------- */
+#gate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px}
+.gate-card{position:relative;width:min(420px,100%);padding:38px 34px 32px;border-radius:24px;background:linear-gradient(180deg,rgba(18,26,54,.82),rgba(7,11,23,.9));border:1px solid var(--line-strong);box-shadow:0 40px 120px -30px rgba(0,0,0,.9),0 0 0 1px rgba(31,102,255,.06),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:rise .8s var(--ease) both}
+.gate-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(108,158,255,.6),transparent 40%,transparent 60%,rgba(31,102,255,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg.mark{width:44px;height:auto;filter:drop-shadow(0 0 14px rgba(31,102,255,.55))}
+.brand b{display:block;font-family:var(--font-display);font-stretch:125%;font-weight:800;letter-spacing:.14em;font-size:1.05rem;line-height:1}
+.brand small{display:block;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.32em;color:var(--blue-hi);margin-top:5px}
+.gate-card h1{font-family:var(--font-display);font-stretch:115%;font-weight:700;font-size:1.6rem;line-height:1.15;margin:28px 0 6px;letter-spacing:-.01em}
+.gate-card p{margin:0 0 22px;color:var(--muted)}
+.field{display:grid;gap:7px;margin-bottom:14px}
+.field>span,.lbl{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.inp{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line-strong);background:rgba(3,5,11,.6);outline:none;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:var(--blue-hi);box-shadow:0 0 0 4px rgba(31,102,255,.18)}
+textarea.inp{resize:vertical;min-height:84px;line-height:1.45}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+select.inp option{background:#0a0f20}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 18px;border-radius:12px;border:1px solid var(--line-strong);background:rgba(128,160,255,.06);font-weight:600;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s;white-space:nowrap}
+.btn:hover{background:rgba(128,160,255,.13);border-color:rgba(128,160,255,.4)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:linear-gradient(180deg,#3a7bff,var(--blue));border-color:transparent;color:#fff;box-shadow:0 10px 30px -10px rgba(31,102,255,.8),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn.primary:hover{box-shadow:0 14px 40px -10px rgba(31,102,255,1),inset 0 1px 0 rgba(255,255,255,.3);background:linear-gradient(180deg,#4b87ff,#2a6dff)}
+.btn.big{padding:15px 22px;font-size:1rem;border-radius:14px}
+.btn.full{width:100%}
+.btn.sm{padding:8px 12px;font-size:.85rem;border-radius:10px}
+.btn.icon{padding:9px;border-radius:10px}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:rgba(128,160,255,.08)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.gate-err{color:var(--bad);font-size:.85rem;min-height:1.3em;margin:8px 0 0}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.97)}}
+.gate-foot{margin-top:22px;font-size:.78rem;color:var(--dim);text-align:center}
+
+/* ---------- app ---------- */
+#app{position:relative;z-index:1;display:grid;grid-template-columns:80px minmax(0,1fr);height:100dvh;opacity:0;transition:opacity .6s}
+#app.on{opacity:1}
+.side{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;border-right:1px solid var(--line);background:rgba(5,8,18,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.side .logo{width:42px;margin-bottom:18px;filter:drop-shadow(0 0 12px rgba(31,102,255,.5))}
+.nav-b{position:relative;width:56px;height:56px;display:grid;place-items:center;border-radius:14px;border:0;background:transparent;color:var(--dim);transition:color .2s,background .2s}
+.nav-b svg{width:22px;height:22px}
+.nav-b span{position:absolute;left:66px;top:50%;transform:translate(-6px,-50%);opacity:0;pointer-events:none;padding:5px 10px;border-radius:8px;background:#0e1530;border:1px solid var(--line-strong);font-size:.78rem;color:var(--fg);white-space:nowrap;transition:opacity .2s,transform .2s;z-index:5}
+.nav-b:hover{color:var(--fg);background:rgba(128,160,255,.08)}
+.nav-b:hover span{opacity:1;transform:translate(0,-50%)}
+.nav-b.on{color:#fff;background:rgba(31,102,255,.18)}
+.nav-b.on::before{content:"";position:absolute;left:-12px;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--blue-hi);box-shadow:0 0 12px var(--blue)}
+.side .grow{flex:1}
+
+.main{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0}
+.top{display:flex;align-items:center;gap:16px;padding:14px 26px;border-bottom:1px solid var(--line);background:rgba(3,5,11,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.top h2{margin:0;font-family:var(--font-display);font-stretch:115%;font-weight:700;font-size:1.15rem;letter-spacing:-.005em}
+.top .crumb{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.16em;color:var(--blue-hi);text-transform:uppercase}
+.top .sp{flex:1}
+.vexbar{display:flex;align-items:center;gap:10px;max-width:460px}
+.vexbar svg{width:40px;height:44px;flex:none;overflow:visible}
+.vexbar .say{font-size:.82rem;color:var(--muted);line-height:1.35;padding:8px 12px;border-radius:12px 12px 12px 4px;background:rgba(128,160,255,.07);border:1px solid var(--line);transition:opacity .3s}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;border:1px solid var(--line-strong);color:var(--muted)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.pill.ai i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+
+.view{min-height:0;overflow:auto;animation:viewin .55s var(--ease) both}
+@keyframes viewin{from{opacity:0;transform:translateY(14px)}}
+.view::-webkit-scrollbar,.panel-scroll::-webkit-scrollbar{width:10px}
+.view::-webkit-scrollbar-thumb,.panel-scroll::-webkit-scrollbar-thumb{background:rgba(128,160,255,.16);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+
+/* criar */
+.create{display:grid;grid-template-columns:360px minmax(0,1fr) 340px;height:100%;min-height:0}
+.panel{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line);background:rgba(5,8,18,.45)}
+.panel.right{border-right:0;border-left:1px solid var(--line)}
+.panel-head{padding:18px 22px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head h3{margin:0;font-size:.95rem;font-weight:600}
+.panel-scroll{flex:1;min-height:0;overflow:auto;padding:4px 22px 22px}
+.panel-foot{padding:16px 22px;border-top:1px solid var(--line);background:rgba(3,5,11,.5)}
+.grp{margin-bottom:20px}
+.grp>.lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.grp>.lbl em{font-style:normal;color:var(--blue-hi);letter-spacing:.04em;text-transform:none;font-family:var(--font-body);font-size:.8rem}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opt{position:relative;display:grid;gap:6px;justify-items:center;padding:12px 8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(128,160,255,.03);color:var(--muted);font-size:.8rem;text-align:center;transition:border-color .2s,background .2s,color .2s,transform .15s}
+.opt:hover{border-color:var(--line-strong);color:var(--fg)}
+.opt:active{transform:scale(.97)}
+.opt.on{border-color:var(--blue-hi);background:rgba(31,102,255,.14);color:#fff;box-shadow:0 0 0 1px rgba(108,158,255,.35),0 10px 30px -14px rgba(31,102,255,.9)}
+.opt .shape{border:1.5px solid currentColor;border-radius:4px;opacity:.85}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(128,160,255,.03);color:var(--muted);font-size:.84rem;transition:all .2s}
+.chip:hover{color:var(--fg);border-color:var(--line-strong)}
+.chip.on{color:#fff;border-color:var(--blue-hi);background:rgba(31,102,255,.18)}
+.styles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st-card{display:grid;gap:7px;padding:8px 8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(128,160,255,.03);color:var(--muted);font-size:.8rem;text-align:left;transition:all .2s}
+.st-card:hover{border-color:var(--line-strong);color:var(--fg)}
+.st-card.on{border-color:var(--blue-hi);background:rgba(31,102,255,.12);color:#fff}
+.st-card canvas{width:100%;aspect-ratio:4/3;border-radius:8px;display:block;background:#04060d}
+.range{width:100%;accent-color:var(--blue)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(128,160,255,.03)}
+.switch b{display:block;font-size:.88rem;font-weight:600}
+.switch small{color:var(--dim);font-size:.76rem}
+.tog{position:relative;width:44px;height:26px;flex:none;border-radius:999px;border:1px solid var(--line-strong);background:rgba(128,160,255,.1);transition:background .25s}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#cfd8f0;transition:transform .25s var(--ease)}
+.tog[aria-checked="true"]{background:var(--blue);border-color:var(--blue)}
+.tog[aria-checked="true"]::after{transform:translateX(18px);background:#fff}
+.tog:disabled{opacity:.4}
+
+/* prévia */
+.stage{position:relative;min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:18px 26px 18px}
+.stage-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.stage-top .sp{flex:1}
+.stage-top #fmt-pill{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
+.canvas-wrap{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden}
+.frame{position:absolute;inset:0;display:grid;place-items:center}
+.frame canvas{display:block;border-radius:10px;box-shadow:0 40px 90px -30px rgba(0,0,0,.95),0 0 0 1px rgba(128,160,255,.14);transition:opacity .25s,transform .35s var(--ease)}
+.frame canvas.swap{opacity:0;transform:scale(.97)}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-strong);background:rgba(7,11,23,.8);backdrop-filter:blur(8px);color:var(--fg);transition:background .2s,opacity .2s}
+.arrow:hover{background:rgba(31,102,255,.35)}
+.arrow.l{left:6px}.arrow.r{right:6px}
+.arrow svg{width:18px;height:18px}
+.thumbs{display:flex;gap:10px;overflow-x:auto;padding:14px 2px 4px;scrollbar-width:thin}
+.thumb{position:relative;flex:none;height:96px;border-radius:8px;border:2px solid transparent;padding:0;background:none;opacity:.6;transition:opacity .2s,border-color .2s,transform .2s;animation:pop .45s var(--ease) both}
+.thumb canvas{height:100%;width:auto;display:block;border-radius:6px}
+.thumb:hover{opacity:.9;transform:translateY(-2px)}
+.thumb.on{opacity:1;border-color:var(--blue-hi)}
+.thumb b{position:absolute;left:5px;top:5px;font-family:var(--font-mono);font-size:.6rem;padding:1px 5px;border-radius:5px;background:rgba(3,5,11,.75);color:#fff}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.92)}}
+.empty{display:grid;place-items:center;text-align:center;gap:14px;color:var(--muted);max-width:380px;padding:30px}
+.empty svg.robot{width:120px;height:136px;overflow:visible}
+.empty h4{margin:0;font-family:var(--font-display);font-stretch:115%;font-size:1.3rem;color:var(--fg)}
+.busy{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:rgba(3,5,11,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .25s both}
+@keyframes fade{from{opacity:0}}
+.busy-in{display:grid;justify-items:center;gap:14px;text-align:center}
+.busy-in svg{width:96px;height:110px;overflow:visible}
+.busy-step{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.08em;color:var(--blue-hi);min-height:1.2em}
+.bar{width:220px;height:3px;border-radius:3px;background:rgba(128,160,255,.15);overflow:hidden}
+.bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--blue-hi),transparent);animation:slide 1.1s infinite}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+
+/* editor */
+.ed-sec{padding:14px 0;border-bottom:1px solid var(--line)}
+.ed-sec:last-child{border-bottom:0}
+.ed-tools{display:flex;gap:6px;flex-wrap:wrap}
+.hint{font-size:.76rem;color:var(--dim);margin-top:6px}
+.warn{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.3);color:#ffd27a;font-size:.8rem;margin-bottom:12px}
+.cap{font-size:.86rem;min-height:170px}
+.tags{font-family:var(--font-mono);font-size:.76rem;min-height:70px;color:var(--blue-hi)}
+
+/* biblioteca */
+.lib{padding:26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+.card{position:relative;display:grid;gap:10px;padding:10px;border-radius:16px;border:1px solid var(--line);background:rgba(10,15,32,.6);transition:transform .25s var(--ease),border-color .2s;animation:pop .5s var(--ease) both}
+.card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+.card img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;background:#04060d;display:block}
+.card b{font-size:.9rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card small{color:var(--dim);font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em}
+.card .row{display:flex;gap:6px}
+.card .row .btn{flex:1}
+.blank{grid-column:1/-1;display:grid;place-items:center;padding:80px 20px;text-align:center;color:var(--muted)}
+
+/* formulários de página */
+.page{max-width:760px;padding:30px 26px 60px}
+.page h3{font-family:var(--font-display);font-stretch:115%;font-size:1.25rem;margin:0 0 4px}
+.page>p{color:var(--muted);margin:0 0 22px}
+.box{padding:22px;border-radius:18px;border:1px solid var(--line);background:rgba(10,15,32,.55);margin-bottom:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{width:34px;height:34px;border-radius:10px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.sw.on{border-color:#fff}
+.avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#0a0f20;border:1px solid var(--line-strong)}
+.note{font-size:.8rem;color:var(--dim);line-height:1.5}
+
+/* toast */
+.toasts{position:fixed;right:22px;bottom:22px;z-index:50;display:grid;gap:8px}
+.toast{padding:12px 16px;border-radius:12px;background:#0e1530;border:1px solid var(--line-strong);box-shadow:0 20px 50px -20px #000;font-size:.88rem;animation:tin .4s var(--ease) both;display:flex;gap:10px;align-items:center}
+.toast.out{animation:tout .3s both}
+.toast i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.toast.err i{background:var(--bad)}
+@keyframes tin{from{opacity:0;transform:translateY(12px) scale(.96)}}
+@keyframes tout{to{opacity:0;transform:translateY(8px)}}
+
+/* abas no celular */
+.mtabs{display:none}
+@media (max-width:1280px){
+  .create{grid-template-columns:340px minmax(0,1fr)}
+  .panel.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);max-height:none}
+  .create{grid-template-rows:minmax(0,1fr) auto;height:auto;min-height:100%}
+  .create .panel.left,.create .stage{height:calc(100dvh - 72px)}
+  .panel.right .panel-scroll{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+}
+@media (max-width:860px){
+  body{overflow:auto}
+  #app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;height:100dvh}
+  .side{order:2;flex-direction:row;justify-content:space-around;padding:6px 8px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line)}
+  .side .logo,.side .grow{display:none}
+  .nav-b{width:52px;height:48px}
+  .nav-b span{display:none}
+  .nav-b.on::before{left:14px;right:14px;top:auto;bottom:-6px;width:auto;height:3px}
+  .top{padding:12px 16px}
+  .vexbar .say{display:none}
+  .create{display:block;height:auto}
+  .mtabs{display:flex;gap:6px;padding:10px 16px 0;position:sticky;top:0;z-index:3;background:rgba(3,5,11,.9);backdrop-filter:blur(10px)}
+  .mtabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:.85rem}
+  .mtabs button.on{color:#fff;border-color:var(--blue-hi);background:rgba(31,102,255,.16)}
+  .create>.panel,.create>.stage{display:none;height:auto;border:0}
+  .create>.on{display:flex}
+  .create>.stage.on{display:grid;min-height:70dvh}
+  .panel-scroll{overflow:visible}
+  .panel.right .panel-scroll{display:block}
+  .stage{padding:14px 16px}
+  .canvas-wrap{height:62dvh}
+  .lib{padding:16px;grid-template-columns:repeat(2,1fr);gap:12px}
+  .two{grid-template-columns:1fr}
+  .page{padding:20px 16px 40px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+#busy{position:fixed;z-index:40}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gA" x1="0" y1="0" x2=".62" y2="1"><stop offset="0" stop-color="#4b91ff"/><stop offset=".6" stop-color="#0b34a8"/><stop offset="1" stop-color="#2a6dff"/></linearGradient>
+    <linearGradient id="gB" x1="1" y1="0" x2=".15" y2="1"><stop offset="0" stop-color="#4c618f"/><stop offset="1" stop-color="#101a33"/></linearGradient>
+    <linearGradient id="rS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3a66"/><stop offset=".45" stop-color="#141e3d"/><stop offset="1" stop-color="#070c1c"/></linearGradient>
+    <radialGradient id="rE"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9cc2ff"/><stop offset="1" stop-color="#1f66ff"/></radialGradient>
+  </defs>
+  <symbol id="vmark" viewBox="0 0 400 245"><path d="M293 2H397L249 238H215L186 170Z" fill="url(#gB)"/><path d="M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z" fill="url(#gA)"/></symbol>
+  <symbol id="robot" viewBox="0 0 120 150">
+    <ellipse cx="60" cy="145" rx="24" ry="4" fill="#1f66ff" opacity=".3"/>
+    <ellipse class="rb-fire" cx="60" cy="122" rx="8" ry="13" fill="#4d8bff" opacity=".55"/>
+    <rect x="22" y="86" width="16" height="8" rx="4" fill="url(#rS)" stroke="#5a7fd6" stroke-width="1"/>
+    <rect x="82" y="86" width="16" height="8" rx="4" fill="url(#rS)" stroke="#5a7fd6" stroke-width="1"/>
+    <rect x="36" y="78" width="48" height="40" rx="14" fill="url(#rS)" stroke="#5a7fd6" stroke-width="1.2"/>
+    <g transform="translate(49 89) scale(.055)"><path d="M293 2H397L249 238H215L186 170Z" fill="#3a4f80"/><path d="M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z" fill="#2a6bff"/></g>
+    <line x1="60" y1="17" x2="60" y2="6" stroke="#5c6f99" stroke-width="2" stroke-linecap="round"/>
+    <circle class="rb-ant" cx="60" cy="5" r="4" fill="#6c9eff"/>
+    <rect x="18" y="16" width="84" height="60" rx="24" fill="url(#rS)" stroke="#6c9eff" stroke-opacity=".5" stroke-width="1.4"/>
+    <rect x="27" y="27" width="66" height="38" rx="16" fill="#03060f"/>
+    <g class="rb-eyes"><rect x="41.5" y="38.5" width="11" height="15" rx="5.5" fill="url(#rE)"/><rect x="67.5" y="38.5" width="11" height="15" rx="5.5" fill="url(#rE)"/></g>
+    <path d="M54 58q6 3 12 0" stroke="#6c9eff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" fill="currentColor"/></symbol>
+  <symbol id="i-lib" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/><circle cx="15.5" cy="10" r="1.4" fill="currentColor"/><path d="M12 20.5c-1.5 0-2-1.2-1.4-2.3.7-1.3 2.4-1.2 3.6-1.2 2 0 3.6-.8 3.6-2.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3L5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 4v5h6V4M9 20v-6h6v6" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 13v6h14v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-dup" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M14 11v6M11 14h6M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="glow a"></div><div class="glow b"></div>
+
+<!-- ============ LOGIN ============ -->
+<section id="gate">
+  <form class="gate-card" id="gate-form" autocomplete="off">
+    <div class="brand"><svg class="mark" viewBox="0 0 400 245"><use href="#vmark"/></svg><div><b>VEX STUDIO</b><small>VEXA DIGITAL</small></div></div>
+    <h1>Seu estúdio de conteúdo.</h1>
+    <p>Carrosséis, posts e stories com a cara da Vexa, em minutos.</p>
+    <label class="field"><span>Senha de acesso</span><input class="inp" id="gate-pass" type="password" placeholder="Digite a senha" autocomplete="current-password" required></label>
+    <button class="btn primary full big" type="submit">Entrar no estúdio</button>
+    <p class="gate-err" id="gate-err" role="alert"></p>
+    <div class="gate-foot">Uso interno · Vexa Digital</div>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+  <nav class="side" aria-label="Menu">
+    <svg class="logo" viewBox="0 0 400 245" aria-hidden="true"><use href="#vmark"/></svg>
+    <button class="nav-b on" data-view="create" aria-label="Criar"><svg><use href="#i-spark"/></svg><span>Criar</span></button>
+    <button class="nav-b" data-view="library" aria-label="Biblioteca"><svg><use href="#i-lib"/></svg><span>Biblioteca</span></button>
+    <button class="nav-b" data-view="brand" aria-label="Marca"><svg><use href="#i-brand"/></svg><span>Marca</span></button>
+    <button class="nav-b" data-view="settings" aria-label="Ajustes"><svg><use href="#i-gear"/></svg><span>Ajustes</span></button>
+    <div class="grow"></div>
+    <button class="nav-b" id="logout" aria-label="Sair"><svg><use href="#i-out"/></svg><span>Sair</span></button>
+  </nav>
+
+  <div class="main">
+    <header class="top">
+      <div><div class="crumb" id="crumb">Vex Studio</div><h2 id="view-title">Criar conteúdo</h2></div>
+      <div class="sp"></div>
+      <span class="pill" id="ai-pill"><i></i><span>MODELOS</span></span>
+      <div class="vexbar"><div class="say" id="vex-say">Oi! Escolhe o formato e o assunto que eu monto o post.</div><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#robot"/></svg></div>
+    </header>
+
+    <!-- CRIAR -->
+    <section class="view" id="v-create">
+      <div class="mtabs" role="tablist">
+        <button class="on" data-mt="left">Briefing</button><button data-mt="stage">Prévia</button><button data-mt="right">Texto</button>
+      </div>
+      <div class="create">
+        <aside class="panel left on">
+          <div class="panel-head"><h3>Briefing</h3><button class="btn sm ghost" id="surprise" title="Sortear um briefing"><svg><use href="#i-redo"/></svg>Surpresa</button></div>
+          <div class="panel-scroll">
+            <div class="grp"><div class="lbl">Formato</div>
+              <div class="seg" id="f-format">
+                <button class="opt on" data-v="carrossel"><span class="shape" style="width:30px;height:37px;box-shadow:5px 0 0 -1px var(--ink),5px 0 0 0 currentColor"></span>Carrossel</button>
+                <button class="opt" data-v="post"><span class="shape" style="width:30px;height:37px"></span>Post</button>
+                <button class="opt" data-v="stories"><span class="shape" style="width:22px;height:39px"></span>Stories</button>
+              </div>
+            </div>
+            <div class="grp"><div class="lbl">Objetivo</div>
+              <div class="chips" id="f-goal">
+                <button class="chip on" data-v="ensinar">Dica / ensinar</button>
+                <button class="chip" data-v="vender">Vender</button>
+                <button class="chip" data-v="autoridade">Autoridade</button>
+                <button class="chip" data-v="engajar">Engajar</button>
+              </div>
+            </div>
+            <div class="grp"><div class="lbl">Estilo visual</div>
+              <div class="styles" id="f-style">
+                <button class="st-card on" data-v="manchete"><canvas width="240" height="180"></canvas>Manchete forte</button>
+                <button class="st-card" data-v="lista"><canvas width="240" height="180"></canvas>Lista e passos</button>
+                <button class="st-card" data-v="dados"><canvas width="240" height="180"></canvas>Dados e comparação</button>
+                <button class="st-card" data-v="tweet"><canvas width="240" height="180"></canvas>Estilo tweet</button>
+              </div>
+            </div>
+            <div class="grp"><div class="lbl">Assunto</div>
+              <div class="chips" id="f-topic">
+                <button class="chip on" data-v="site">Sites</button>
+                <button class="chip" data-v="trafego">Tráfego pago</button>
+                <button class="chip" data-v="automacao">Automação</button>
+                <button class="chip" data-v="social">Redes sociais</button>
+                <button class="chip" data-v="negocio">Vendas e negócio</button>
+              </div>
+            </div>
+            <div class="grp"><label class="lbl" for="f-aud">Público</label>
+              <select class="inp" id="f-aud">
+                <option value="geral">Pequenos negócios em geral</option>
+                <option value="loja">Lojas e e-commerce</option>
+                <option value="saude">Clínicas e saúde</option>
+                <option value="food">Restaurantes e delivery</option>
+                <option value="servico">Prestadores de serviço</option>
+                <option value="beleza">Salões e estética</option>
+              </select>
+            </div>
+            <div class="grp"><label class="lbl" for="f-theme">Tema específico <em>opcional</em></label>
+              <textarea class="inp" id="f-theme" rows="3" placeholder="Ex.: por que um site lento faz você perder vendas"></textarea>
+              <div class="hint">Com IA ligada, o Vex escreve tudo sobre esse tema. Sem IA, vira o título da capa.</div>
+            </div>
+            <div class="grp" id="g-count"><div class="lbl">Slides <em id="count-out">7</em></div>
+              <input class="range" id="f-count" type="range" min="3" max="10" value="7">
+            </div>
+            <div class="grp"><div class="lbl">Cor do fundo</div>
+              <div class="seg" id="f-bg">
+                <button class="opt on" data-v="escuro"><span class="shape" style="width:22px;height:22px;background:#04060d;border-color:#5a6b96"></span>Escuro</button>
+                <button class="opt" data-v="claro"><span class="shape" style="width:22px;height:22px;background:#f2f5fb;border-color:#c9d3ea"></span>Claro</button>
+                <button class="opt" data-v="azul"><span class="shape" style="width:22px;height:22px;background:linear-gradient(140deg,#2f74ff,#0b2fa8);border-color:#6c9eff"></span>Azul</button>
+              </div>
+            </div>
+            <div class="switch"><div><b>Escrever com IA</b><small id="ai-sub">Adicione sua chave em Ajustes para ligar</small></div><button class="tog" id="f-ai" role="switch" aria-checked="false" aria-label="Escrever com IA" disabled></button></div>
+          </div>
+          <div class="panel-foot"><button class="btn primary full big" id="gen"><svg><use href="#i-spark"/></svg>Gerar com o Vex</button></div>
+        </aside>
+
+        <section class="stage" id="stage">
+          <div class="stage-top">
+            <span class="pill" id="fmt-pill">—</span>
+            <div class="sp"></div>
+            <button class="btn sm" id="b-save" disabled><svg><use href="#i-save"/></svg>Salvar</button>
+            <button class="btn sm" id="b-share" hidden disabled><svg><use href="#i-share"/></svg>Compartilhar</button>
+            <button class="btn sm" id="b-one" disabled><svg><use href="#i-dl"/></svg>Este slide</button>
+            <button class="btn sm primary" id="b-all" disabled><svg><use href="#i-dl"/></svg>Baixar tudo</button>
+          </div>
+          <div class="canvas-wrap" id="cwrap">
+            <div class="empty" id="empty">
+              <svg class="robot" viewBox="0 0 120 150"><use href="#robot"/></svg>
+              <h4>Pronto para criar?</h4>
+              <div>Monte o briefing ao lado e toque em <b>Gerar com o Vex</b>. Você edita tudo antes de baixar.</div>
+            </div>
+            <div class="frame" id="frame" hidden><canvas id="main-cv"></canvas></div>
+            <button class="arrow l" id="prev" hidden aria-label="Slide anterior"><svg><use href="#i-l"/></svg></button>
+            <button class="arrow r" id="next" hidden aria-label="Próximo slide"><svg><use href="#i-r"/></svg></button>
+          </div>
+          <div class="thumbs" id="thumbs"></div>
+        </section>
+
+        <aside class="panel right">
+          <div class="panel-head"><h3>Texto e edição</h3><span class="pill" id="slide-pill">—</span></div>
+          <div class="panel-scroll" id="editor">
+            <div class="empty" style="padding:30px 0;max-width:none"><div>Gere um conteúdo para editar os textos aqui.</div></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- BIBLIOTECA -->
+    <section class="view" id="v-library" hidden><div class="lib" id="lib"></div></section>
+
+    <!-- MARCA -->
+    <section class="view" id="v-brand" hidden>
+      <div class="page">
+        <h3>Identidade da marca</h3>
+        <p>Esses dados aparecem nos posts: nome, @, foto e cor de destaque.</p>
+        <div class="box">
+          <div class="two">
+            <label class="field"><span>Nome exibido</span><input class="inp" id="b-name"></label>
+            <label class="field"><span>@ do Instagram</span><input class="inp" id="b-handle"></label>
+          </div>
+          <div class="field"><span>Foto de perfil (estilo tweet)</span>
+            <div style="display:flex;gap:14px;align-items:center"><img class="avatar" id="b-avatar" alt=""><label class="btn sm">Trocar foto<input type="file" id="b-file" accept="image/*" hidden></label><button class="btn sm ghost" id="b-avatar-reset">Usar o V</button></div>
+          </div>
+          <div class="field"><span>Cor de destaque</span>
+            <div class="swatches" id="b-colors"></div>
+          </div>
+          <div class="two">
+            <label class="field"><span>Chamada final padrão</span><input class="inp" id="b-cta" placeholder="Chama no direct"></label>
+            <label class="field"><span>Contato no último slide</span><input class="inp" id="b-contact" placeholder="Link na bio"></label>
+          </div>
+          <label class="field"><span>Hashtags fixas</span><input class="inp" id="b-tags" placeholder="#vexadigital #ribeiraopreto"></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section class="view" id="v-settings" hidden>
+      <div class="page">
+        <h3>Inteligência artificial</h3>
+        <p>Com uma chave da API da Claude, o Vex escreve textos originais sobre qualquer tema. Sem chave, ele usa a biblioteca de modelos.</p>
+        <div class="box">
+          <label class="field"><span>Chave da API (Anthropic)</span><input class="inp" id="s-key" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
+          <div class="two">
+            <label class="field"><span>Modelo</span>
+              <select class="inp" id="s-model">
+                <option value="claude-sonnet-5-5">Sonnet 5.5 · recomendado</option>
+                <option value="claude-haiku-5-5">Haiku 5.5 · mais barato</option>
+                <option value="claude-opus-5-5">Opus 5.5 · máximo</option>
+              </select>
+            </label>
+            <div class="field"><span>&nbsp;</span><div style="display:flex;gap:8px"><button class="btn" id="s-test">Testar conexão</button><button class="btn ghost" id="s-clear">Remover chave</button></div></div>
+          </div>
+          <p class="note">A chave fica salva só neste navegador e vai direto para a Anthropic. Cada pessoa da equipe coloca a chave no próprio computador. Crie e acompanhe gastos em console.anthropic.com.</p>
+        </div>
+        <h3 style="margin-top:30px">Dados</h3>
+        <p>Posts salvos ficam neste navegador.</p>
+        <div class="box" style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="s-export">Exportar backup</button>
+          <label class="btn">Importar backup<input type="file" id="s-import" accept="application/json" hidden></label>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="busy" id="busy" hidden><div class="busy-in"><svg viewBox="0 0 120 150"><use href="#robot"/></svg><div class="busy-step" id="busy-step">Pensando…</div><div class="bar"><i></i></div></div></div>
+<script>
+"use strict";
+/* =========================================================
+   Biblioteca de conteúdo do Vex (modo sem IA)
+   *palavra* = destaque na cor da marca
+   {neg} {cli} {quem} {n} são trocados conforme o público
+   ========================================================= */
+const AUD = {
+  geral:   { neg: "seu negócio", cl: "cliente", cli: "clientes", quem: "pequenos negócios", tag: "#pequenasempresas" },
+  loja:    { neg: "sua loja", cl: "cliente", cli: "clientes", quem: "lojas", tag: "#ecommerce" },
+  saude:   { neg: "sua clínica", cl: "paciente", cli: "pacientes", quem: "clínicas", tag: "#marketingparasaude" },
+  food:    { neg: "seu restaurante", cl: "cliente", cli: "clientes", quem: "restaurantes", tag: "#delivery" },
+  servico: { neg: "seu negócio", cl: "cliente", cli: "clientes", quem: "prestadores de serviço", tag: "#empreendedorismo" },
+  beleza:  { neg: "seu salão", cl: "cliente", cli: "clientes", quem: "salões e estética", tag: "#esteticaebeleza" }
+};
+
+const TOPICS = {
+  site: {
+    label: "Sites",
+    tags: ["#criacaodesites", "#sitesprofissionais", "#landingpage", "#presencadigital"],
+    hooks: {
+      ensinar: ["{n} sinais de que *{neg}* está perdendo {cli} por causa do site", "O que todo site que *vende* tem (e o seu talvez não)", "Seu site não precisa ser bonito. Precisa *converter*.", "{n} ajustes no site que fazem o {cl} chamar *hoje*"],
+      vender: ["Seu {cl} procurou você no Google. *Achou o concorrente.*", "Um site que trabalha por *{neg}* 24 horas por dia", "Ainda depende só de indicação? *Seu site pode mudar isso.*"],
+      autoridade: ["O site virou o *cartão de visita* que o {cl} confere antes de comprar", "O que os sites que mais vendem têm em comum", "Site lento custa caro. *Só não aparece na fatura.*"],
+      engajar: ["Site ou só Instagram: *do que {neg} precisa?*", "Você compraria de uma empresa *sem site*?", "Qual destes erros o seu site comete?"]
+    },
+    sub: {
+      ensinar: "Salva esse post e confere um por um.",
+      vender: "Quem não é encontrado, não é escolhido.",
+      autoridade: "O que separa um site que vende de um que só existe.",
+      engajar: "Deixa sua opinião nos comentários."
+    },
+    tips: [
+      { t: "Carrega em até 3 segundos", b: "Cada segundo a mais de espera faz gente desistir. Imagens leves e boa hospedagem resolvem boa parte." },
+      { t: "Funciona *perfeito* no celular", b: "A maioria das visitas vem do celular. Botões grandes, texto legível e nada cortado na tela." },
+      { t: "Diz o que você faz em 5 segundos", b: "Quem chega precisa entender na hora: o que você oferece, para quem e por que escolher você." },
+      { t: "Tem *um* botão principal", b: "WhatsApp, orçamento ou compra. Um caminho claro converte mais que dez opções." },
+      { t: "Mostra prova, não promessa", b: "Depoimentos, fotos reais, números do seu trabalho. Confiança vem do que dá para conferir." },
+      { t: "Aparece no Google", b: "Título certo em cada página, Perfil de Empresa configurado e conteúdo com as palavras que o {cl} pesquisa." },
+      { t: "Endereço e contato visíveis", b: "Telefone, WhatsApp, cidade e horário fáceis de achar. Esconder contato é perder venda." },
+      { t: "Mede tudo", b: "Sem Analytics você não sabe quantos visitaram, de onde vieram e quantos chamaram. Dado guia decisão." }
+    ],
+    pairs: [
+      { bad: "Site lento e pesado", good: "Carrega rápido no 4G" },
+      { bad: "Menu com 12 opções", good: "Um botão claro de contato" },
+      { bad: "Texto falando da empresa", good: "Texto falando do problema do {cl}" },
+      { bad: "Sem depoimentos", good: "Provas reais de quem já comprou" },
+      { bad: "Feito e esquecido", good: "Atualizado e medido todo mês" }
+    ],
+    pains: ["O {cl} pesquisa no Google e não encontra você.", "Quem encontra, vê um site antigo e desconfia.", "No celular, metade das coisas não funciona.", "E você não tem ideia de quantas vendas isso custa."],
+    benefits: ["Site rápido e pensado para celular", "Texto que convence e botão direto pro WhatsApp", "Configurado para aparecer no Google", "Relatório mensal de visitas e contatos", "Manutenção inclusa, sem dor de cabeça"],
+    offer: { t: "Um site que *vende* por você.", b: "Planejamos, escrevemos, construímos e cuidamos. Você só acompanha os contatos chegando." },
+    data: [{ label: "dos consumidores pesquisam online antes de comprar", hint: "Use um dado real de pesquisa (ex.: Google, Sebrae) e cite a fonte." }, { label: "das visitas a sites vêm do celular", hint: "Procure um dado atual (ex.: Statcounter) e cite a fonte." }],
+    insights: ["O {cl} decide em segundos se confia em você. O site é onde essa decisão acontece, mesmo quando ele te conheceu pelo Instagram ou por indicação.", "Um site não é custo de vitrine. É o único canal que é 100% seu: não depende de algoritmo, não some se a rede social mudar."],
+    debates: [{ q: "Instagram substitui um site?", a: "Sim, rede social basta", b: "Não, site é essencial" }, { q: "O que pesa mais na hora de comprar?", a: "Preço", b: "Confiança" }]
+  },
+
+  trafego: {
+    label: "Tráfego pago",
+    tags: ["#trafegopago", "#googleads", "#metaads", "#anuncios"],
+    hooks: {
+      ensinar: ["{n} erros que fazem você *queimar dinheiro* em anúncio", "Antes de impulsionar o próximo post, *leia isso*", "Como anunciar com pouco orçamento *sem desperdiçar*", "{n} coisas para olhar no seu anúncio *toda semana*"],
+      vender: ["Você impulsiona post e *não vê resultado?*", "Anúncio que traz {cli}, *não só curtida*", "Enquanto você espera, *seu concorrente anuncia*."],
+      autoridade: ["Curtida não paga boleto. *Venda paga.*", "O anúncio não é o problema. *O que vem depois dele é.*", "Por que o mesmo orçamento dá resultados tão diferentes"],
+      engajar: ["Google ou Instagram: *onde anunciar {neg}?*", "Botão *impulsionar*: amigo ou inimigo?", "Quanto você investiria por mês em anúncio?"]
+    },
+    sub: {
+      ensinar: "Salva para revisar antes da próxima campanha.",
+      vender: "Anúncio bom é o que vira conversa no WhatsApp.",
+      autoridade: "O que ninguém te conta sobre anúncio.",
+      engajar: "Conta pra gente nos comentários."
+    },
+    tips: [
+      { t: "Defina *um* objetivo", b: "Mensagens, visitas ao site ou vendas. Campanha que tenta tudo ao mesmo tempo não otimiza nada." },
+      { t: "Fuja do botão impulsionar", b: "Ele limita as opções de público e objetivo. O gerenciador de anúncios dá muito mais controle." },
+      { t: "Público certo > público grande", b: "Região, idade e interesses que fazem sentido para {neg}. Alcance alto com gente errada é dinheiro jogado fora." },
+      { t: "Teste mais de um criativo", b: "Rode 2 ou 3 versões de imagem e texto. Deixe os números escolherem o vencedor, não o gosto pessoal." },
+      { t: "A página precisa *aguentar* o clique", b: "Anúncio ótimo levando para site lento ou WhatsApp sem resposta é desperdício garantido." },
+      { t: "Responda *rápido*", b: "Quem chama pelo anúncio está quente agora. Demorar horas para responder esfria a venda." },
+      { t: "Olhe custo por contato, não curtida", b: "A métrica que importa é quanto custa cada {cl} interessado, e quantos viram venda." },
+      { t: "Dê tempo para aprender", b: "Mexer na campanha todo dia reinicia o aprendizado. Ajuste com calma e com base em dados." }
+    ],
+    pairs: [
+      { bad: "Impulsionar qualquer post", good: "Campanha com objetivo claro" },
+      { bad: "Público: todo o Brasil", good: "Público: quem compra de você" },
+      { bad: "Um único criativo", good: "Testes com 3 variações" },
+      { bad: "Medir curtidas", good: "Medir custo por contato" },
+      { bad: "Responder no dia seguinte", good: "Responder em minutos" }
+    ],
+    pains: ["Você já impulsionou post e só ganhou curtida.", "Gastou e não sabe dizer quanto voltou.", "Os contatos que chegam não têm perfil de compra.", "E fica a sensação de que anúncio não funciona para {neg}."],
+    benefits: ["Campanhas no Google e no Instagram com objetivo de venda", "Público definido por quem realmente compra", "Criativos testados e otimizados toda semana", "Relatório simples: quanto investiu e quanto voltou", "Integração com WhatsApp para não perder contato"],
+    offer: { t: "Anúncio que vira *conversa*, não curtida.", b: "Planejamos, criamos e otimizamos suas campanhas, com relatório claro todo mês." },
+    data: [{ label: "das empresas que anunciam não medem o retorno", hint: "Só use um número com fonte confiável. Se não tiver, troque por um resultado de cliente real." }, { label: "foi a redução no custo por contato", hint: "Use o resultado real de uma campanha sua e diga o período." }],
+    insights: ["Anúncio é acelerador. Se o que vem depois dele está quebrado, ele só acelera o prejuízo. Primeiro arrume a casa, depois aumente o volume.", "O algoritmo aprende com os dados que você entrega. Campanha bem configurada fica mais barata com o tempo."],
+    debates: [{ q: "Onde anunciar primeiro?", a: "Google", b: "Instagram" }, { q: "Botão impulsionar funciona?", a: "Funciona sim", b: "É dinheiro jogado fora" }]
+  },
+
+  automacao: {
+    label: "Automação",
+    tags: ["#automacao", "#whatsappbusiness", "#chatbot", "#produtividade"],
+    hooks: {
+      ensinar: ["{n} tarefas que você ainda faz na mão e *dá para automatizar*", "Como responder {cli} no WhatsApp *mesmo dormindo*", "Seu tempo vale demais para *copiar e colar*", "{n} automações simples para *{neg}*"],
+      vender: ["Quantos {cli} você perdeu por *demorar a responder?*", "Seu WhatsApp atendendo, agendando e vendendo *sozinho*", "Pare de fazer trabalho de robô. *Deixa que o robô faz.*"],
+      autoridade: ["Automação não substitui gente. *Libera gente.*", "As empresas que crescem rápido têm uma coisa em comum: *processo*", "Velocidade de resposta é o novo diferencial"],
+      engajar: ["Você confia em *atendimento automático?*", "Qual tarefa você mais odeia fazer no dia a dia?", "Chatbot: ajuda ou irrita?"]
+    },
+    sub: {
+      ensinar: "Salva e escolhe a primeira para implantar.",
+      vender: "Atendimento rápido vende mais.",
+      autoridade: "Menos tarefa repetida, mais tempo para crescer.",
+      engajar: "Responde aqui nos comentários."
+    },
+    tips: [
+      { t: "Mensagem de boas-vindas", b: "Quem chama fora do horário recebe resposta na hora, com as informações principais e o próximo passo." },
+      { t: "Respostas rápidas prontas", b: "Preço, horário, endereço, formas de pagamento. Atalhos no WhatsApp Business poupam horas por semana." },
+      { t: "Agendamento sem vai e volta", b: "Um link de agenda resolve o que levava 10 mensagens. O {cl} escolhe o horário sozinho." },
+      { t: "Lembrete automático", b: "Mensagem antes do horário marcado reduz faltas e esquecimentos." },
+      { t: "Etiquetas no WhatsApp", b: "Novo contato, orçamento enviado, fechado. Você enxerga o funil inteiro sem planilha." },
+      { t: "Formulário que vira planilha", b: "Pedidos e orçamentos caem organizados, sem digitar nada de novo." },
+      { t: "Pós-venda no piloto automático", b: "Mensagem pedindo avaliação alguns dias depois da compra. Gera prova social sem esforço." },
+      { t: "Integre o anúncio ao atendimento", b: "Quem clica no anúncio já recebe a primeira resposta certa. Contato quente não esfria." }
+    ],
+    pairs: [
+      { bad: "Responder tudo na mão", good: "Respostas prontas em 1 toque" },
+      { bad: "Agendar por mensagem", good: "Link de agenda automático" },
+      { bad: "Contato perdido no histórico", good: "Etiquetas por etapa da venda" },
+      { bad: "Cliente esquece o horário", good: "Lembrete automático" },
+      { bad: "Planilha preenchida à mão", good: "Formulário que preenche sozinho" }
+    ],
+    pains: ["O {cl} chama às 22h e só recebe resposta no outro dia.", "Você responde as mesmas perguntas dezenas de vezes.", "Orçamentos se perdem no meio das conversas.", "E o tempo que sobra para vender é cada vez menor."],
+    benefits: ["Atendimento inicial automático no WhatsApp", "Agendamentos e lembretes sem esforço", "Funil de vendas organizado por etapas", "Integração entre anúncios, site e WhatsApp", "Mais tempo para você cuidar do que importa"],
+    offer: { t: "Seu atendimento *no piloto automático*.", b: "Mapeamos suas tarefas repetidas e automatizamos o que dá, sem perder o toque humano." },
+    data: [{ label: "das pessoas esperam resposta em poucos minutos", hint: "Use uma pesquisa real sobre tempo de resposta e cite a fonte." }, { label: "horas por semana economizadas com automação", hint: "Use o número real de um cliente ou do seu próprio processo." }],
+    insights: ["Automação boa é invisível: o {cl} só percebe que foi atendido rápido e bem. O que é repetitivo vai para o robô, o que exige cuidado fica com a sua equipe.", "Quem responde primeiro tem mais chance de fechar. Velocidade virou critério de escolha."],
+    debates: [{ q: "Atendimento automático é…", a: "Prático", b: "Frio demais" }, { q: "Você prefere ser atendido por…", a: "Robô rápido", b: "Pessoa que demora" }]
+  },
+
+  social: {
+    label: "Redes sociais",
+    tags: ["#socialmedia", "#marketingdigital", "#instagramparanegocios", "#conteudodigital"],
+    hooks: {
+      ensinar: ["{n} motivos para *{neg}* não crescer no Instagram", "Pare de postar só foto de produto. *Faça isso.*", "O que postar quando você *não sabe o que postar*", "{n} ajustes no perfil que fazem o {cl} *te seguir*"],
+      vender: ["Seu Instagram tem seguidor. *Mas tem {cli}?*", "Um perfil que atrai, convence e *leva para o WhatsApp*", "Postar todo dia cansa. *Postar certo dá resultado.*"],
+      autoridade: ["Seguidor é vaidade. *{cl_cap} é resultado.*", "Constância vence viral", "O feed é a nova vitrine. *E está sempre aberta.*"],
+      engajar: ["Você posta mais *produto* ou *bastidor*?", "Qual conteúdo te faz parar de rolar o feed?", "Reels ou carrossel: o que funciona mais pra você?"]
+    },
+    sub: {
+      ensinar: "Salva e aplica no próximo post.",
+      vender: "Conteúdo que gera conversa, não só curtida.",
+      autoridade: "O que realmente faz um perfil vender.",
+      engajar: "Comenta aqui, quero saber."
+    },
+    tips: [
+      { t: "Bio que explica *em uma linha*", b: "O que você faz, para quem e como chamar. Link direto para o WhatsApp ou site." },
+      { t: "Destaques organizados", b: "Serviços, depoimentos, como funciona e contato. É o cardápio do seu perfil." },
+      { t: "Mostre os bastidores", b: "Gente compra de gente. Processo, equipe e rotina geram confiança." },
+      { t: "Ensine algo útil", b: "Dicas do seu ramo mostram que você entende do assunto e fazem o {cl} salvar o post." },
+      { t: "Prova social sempre", b: "Prints de elogio, antes e depois, avaliações. O que outros dizem vale mais do que você fala." },
+      { t: "Chame para a ação", b: "Todo post precisa de um próximo passo: comentar, salvar, chamar no direct." },
+      { t: "Constância > quantidade", b: "Melhor 3 posts bons por semana, sempre, do que 10 numa semana e nada na seguinte." },
+      { t: "Responda todo mundo", b: "Comentário e direct respondidos rápido ensinam o algoritmo e o {cl} que você está presente." }
+    ],
+    pairs: [
+      { bad: "Só foto de produto", good: "Dica, bastidor e prova social" },
+      { bad: "Bio genérica", good: "Bio clara com chamada" },
+      { bad: "Postar quando dá", good: "Calendário com constância" },
+      { bad: "Ignorar comentários", good: "Responder em poucas horas" },
+      { bad: "Post sem objetivo", good: "Toda peça com um próximo passo" }
+    ],
+    pains: ["Você posta, posta e o perfil não cresce.", "As curtidas vêm de amigos, não de {cli}.", "Falta tempo e ideia para manter a constância.", "E o Instagram vira mais uma tarefa, não um canal de vendas."],
+    benefits: ["Planejamento mensal de conteúdo", "Design com a identidade da sua marca", "Textos que geram conversa e salvamento", "Destaques, bio e perfil otimizados", "Relatório do que funcionou no mês"],
+    offer: { t: "Um Instagram que *trabalha* pela sua marca.", b: "Estratégia, design e texto prontos. Você aprova e acompanha os resultados." },
+    data: [{ label: "dos usuários usam o Instagram para descobrir marcas", hint: "Use um dado oficial (ex.: Meta) e cite a fonte." }, { label: "de aumento no alcance em 90 dias", hint: "Use o resultado real do seu perfil ou de um cliente." }],
+    insights: ["O {cl} raramente compra no primeiro post que vê. Ele observa, salva, volta. Conteúdo constante é o que transforma curiosidade em confiança.", "O perfil é a primeira reunião com o {cl}, só que sem você estar presente. Ele precisa vender sozinho."],
+    debates: [{ q: "O que dá mais resultado?", a: "Reels", b: "Carrossel" }, { q: "Mostrar o preço no post?", a: "Sim, sempre", b: "Não, só no direct" }]
+  },
+
+  negocio: {
+    label: "Vendas e negócio",
+    tags: ["#empreendedorismo", "#vendas", "#gestao", "#negocios"],
+    hooks: {
+      ensinar: ["{n} hábitos de quem vende *todo mês*, não só às vezes", "Como transformar {cli} de uma vez em *{cli} fiéis*", "{n} perguntas para fazer antes de *baixar o preço*", "O digital não é mágica. *É método.*"],
+      vender: ["Você é ótimo no que faz. *Mas o {cl} sabe disso?*", "Site, anúncio, automação e redes *com um só time*", "Pare de apagar incêndio no digital. *Comece a crescer.*"],
+      autoridade: ["Quem não mede, *chuta*.", "Indicação é ótima. *Mas não é estratégia.*", "Crescer não é vender mais barato. *É vender melhor.*"],
+      engajar: ["Indicação ou internet: *de onde vêm seus {cli}?*", "Qual é o maior desafio de {neg} hoje?", "Você daria desconto para fechar uma venda?"]
+    },
+    sub: {
+      ensinar: "Salva e compartilha com seu sócio.",
+      vender: "Um parceiro para todo o seu digital.",
+      autoridade: "O que separa negócios que crescem dos que estagnam.",
+      engajar: "Responde nos comentários."
+    },
+    tips: [
+      { t: "Saiba de onde vêm os {cli}", b: "Pergunte sempre como te conheceram. Isso mostra onde investir mais e onde cortar." },
+      { t: "Responda rápido", b: "Velocidade de resposta é um dos maiores fatores de fechamento. Quem demora, perde para quem responde." },
+      { t: "Faça o pós-venda", b: "Uma mensagem depois da compra gera recompra, indicação e avaliação. Quase ninguém faz." },
+      { t: "Tenha uma oferta clara", b: "O que está incluso, quanto custa e como começar. Clareza vende mais que desconto." },
+      { t: "Peça avaliação", b: "Avaliações no Google e depoimentos são vendedores que trabalham de graça, todos os dias." },
+      { t: "Acompanhe números simples", b: "Contatos, orçamentos enviados, vendas fechadas. Três números já mudam suas decisões." },
+      { t: "Não dependa de um canal só", b: "Indicação, Instagram, Google, WhatsApp. Se um cair, os outros sustentam." },
+      { t: "Invista no que já funciona", b: "Antes de testar algo novo, dobre a aposta no canal que já traz {cli}." }
+    ],
+    pairs: [
+      { bad: "Depender só de indicação", good: "Vários canais trazendo {cli}" },
+      { bad: "Dar desconto para fechar", good: "Mostrar valor para fechar" },
+      { bad: "Venda acaba no pagamento", good: "Pós-venda gera recompra" },
+      { bad: "Decidir no feeling", good: "Decidir com números" },
+      { bad: "Um fornecedor para cada coisa", good: "Um time que enxerga o todo" }
+    ],
+    pains: ["Um mês é bom, o outro é fraco, e você não sabe por quê.", "Você cuida do site com um, dos anúncios com outro, das redes com outro.", "Ninguém conversa entre si e o resultado não aparece.", "E você continua sem tempo para cuidar do negócio."],
+    benefits: ["Diagnóstico do seu digital antes de qualquer proposta", "Site, anúncios, automação e redes conectados", "Um só time, um só contato", "Relatórios simples com o que importa", "Atendimento online para todo o Brasil"],
+    offer: { t: "O digital da sua empresa, *resolvido*.", b: "Um só time cuidando de site, anúncios, automação e redes sociais, tudo conectado." },
+    data: [{ label: "das pequenas empresas ainda não têm site", hint: "Use um dado real (ex.: Sebrae, IBGE) e cite a fonte." }, { label: "dos {cli} chegaram pela internet este mês", hint: "Use o número real do seu negócio ou de um cliente." }],
+    insights: ["Negócio que cresce com constância não depende de sorte nem de um único canal. Ele tem processo, mede o que faz e ajusta rápido.", "Desconto atrai quem busca preço. Clareza e confiança atraem quem busca solução, e esse {cl} fica."],
+    debates: [{ q: "De onde vem a maioria dos seus {cli}?", a: "Indicação", b: "Internet" }, { q: "Para vender mais, você…", a: "Baixa o preço", b: "Aumenta o valor" }]
+  }
+};
+
+const CTA = {
+  ensinar: { t: "Gostou? *Salva* e manda pra quem precisa.", b: "Siga {handle} para mais dicas como essa." },
+  vender: { t: "Vamos resolver isso *juntos*?", b: "{cta} e fale com o time da Vexa." },
+  autoridade: { t: "Quer isso funcionando no *{neg}*?", b: "{cta}. A gente começa pelo diagnóstico." },
+  engajar: { t: "E aí, qual é o *seu lado*?", b: "Comenta aqui embaixo. A gente responde todo mundo." }
+};
+
+const CAPTION_CTA = {
+  ensinar: "Salva esse post para consultar depois e marca alguém que precisa ver isso. 👇",
+  vender: "Quer isso no seu negócio? {cta}. 💬",
+  autoridade: "Faz sentido para você? {cta} que a gente conversa.",
+  engajar: "Comenta aqui: qual é o seu lado? Queremos saber! 👇"
+};
+
+const IDEAS = [
+  "por que um site lento faz você perder vendas", "como responder clientes no WhatsApp mais rápido", "o erro mais comum de quem impulsiona post",
+  "o que postar quando falta ideia", "como pedir avaliações no Google", "por que o Instagram sozinho não basta", "como saber se o anúncio está dando lucro",
+  "o que colocar na bio do Instagram", "como fazer o cliente voltar a comprar", "o que um site precisa ter para aparecer no Google"
+];
+
+/* =========================================================
+   Renderizador dos posts (canvas)
+   ========================================================= */
+const FMT = { carrossel: { w: 1080, h: 1350, label: "Carrossel 1080×1350" }, post: { w: 1080, h: 1350, label: "Post 1080×1350" }, stories: { w: 1080, h: 1920, label: "Stories 1080×1920" } };
+const V_R = new Path2D("M293 2H397L249 238H215L186 170Z");
+const V_L = new Path2D("M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z");
+const FONT_D = '"Archivo", system-ui, sans-serif', FONT_B = '"Instrument Sans", system-ui, sans-serif', FONT_M = '"JetBrains Mono", ui-monospace, monospace';
+const HAS_STRETCH = "fontStretch" in CanvasRenderingContext2D.prototype;
+const HAS_LS = "letterSpacing" in CanvasRenderingContext2D.prototype;
+
+function hexRgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(c => c + c).join(""); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function rgba(h, a) { const [r, g, b] = hexRgb(h); return "rgba(" + r + "," + g + "," + b + "," + a + ")"; }
+function mix(h, h2, t) { const a = hexRgb(h), b = hexRgb(h2); return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0")).join(""); }
+function lum(h) { const [r, g, b] = hexRgb(h); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; }
+
+function palette(bg, accent) {
+  const acc = accent || "#1f66ff";
+  const hi = lum(acc) > .7 ? mix(acc, "#000000", .25) : mix(acc, "#ffffff", .38);
+  if (bg === "claro") return { mode: "claro", bg: "#f3f5fa", fg: "#0b1020", muted: "#4b5878", dim: "#8a96b4", acc, hl: lum(acc) > .7 ? "#1f66ff" : acc, hlMode: "color", card: "#ffffff", cardLine: "rgba(20,40,90,.10)", line: "rgba(20,40,90,.12)", dot: "rgba(20,40,90,.07)", bad: "#e5484d", vL: null };
+  if (bg === "azul") return { mode: "azul", bg: acc, bg2: mix(acc, "#000000", .55), fg: "#ffffff", muted: "rgba(255,255,255,.82)", dim: "rgba(255,255,255,.6)", acc: "#ffffff", hl: mix(acc, "#000000", .2), hlMode: "marker", card: "rgba(255,255,255,.1)", cardLine: "rgba(255,255,255,.22)", line: "rgba(255,255,255,.25)", dot: "rgba(255,255,255,.09)", bad: "#ffc2c7", vL: "#ffffff" };
+  return { mode: "escuro", bg: "#04060d", fg: "#f2f5ff", muted: "#a5b2d0", dim: "#61709a", acc, hl: hi, hlMode: "color", card: "rgba(140,170,255,.05)", cardLine: "rgba(140,170,255,.16)", line: "rgba(140,170,255,.18)", dot: "rgba(140,170,255,.075)", bad: "#ff6a7a", vL: null };
+}
+
+function setFont(ctx, kind, size, weight) {
+  if (kind === "d") { ctx.font = (weight || 800) + " " + size + "px " + FONT_D; if (HAS_STRETCH) ctx.fontStretch = "semi-expanded"; if (HAS_LS) ctx.letterSpacing = (-size * .025).toFixed(1) + "px"; }
+  else if (kind === "m") { ctx.font = (weight || 500) + " " + size + "px " + FONT_M; if (HAS_STRETCH) ctx.fontStretch = "normal"; if (HAS_LS) ctx.letterSpacing = (size * .12).toFixed(1) + "px"; }
+  else { ctx.font = (weight || 500) + " " + size + "px " + FONT_B; if (HAS_STRETCH) ctx.fontStretch = "normal"; if (HAS_LS) ctx.letterSpacing = "0px"; }
+}
+
+/* quebra texto com *destaques* e \n */
+function layout(ctx, text, maxW) {
+  const out = [[]];
+  String(text || "").split(/(\*[^*]+\*)/).forEach(seg => {
+    if (!seg) return;
+    const hl = /^\*[^*]+\*$/.test(seg);
+    const raw = hl ? seg.slice(1, -1) : seg;
+    raw.split(/(\n)/).forEach(part => {
+      if (part === "\n") { out.push([]); return; }
+      part.split(/(\s+)/).forEach(w => {
+        if (!w) return;
+        const line = out[out.length - 1];
+        if (/^\s+$/.test(w)) { if (line.length) line.push({ t: " ", hl, w: ctx.measureText(" ").width, sp: 1 }); return; }
+        const ww = ctx.measureText(w).width;
+        const cur = line.reduce((s, k) => s + k.w, 0);
+        if (line.length && cur + ww > maxW) {
+          while (line.length && line[line.length - 1].sp) line.pop();
+          out.push([{ t: w, hl, w: ww }]);
+        } else line.push({ t: w, hl, w: ww });
+      });
+    });
+  });
+  out.forEach(l => { while (l.length && l[l.length - 1].sp) l.pop(); });
+  return out;
+}
+function fitText(ctx, text, kind, weight, maxW, maxH, maxS, minS, lh, maxLines) {
+  let best = null;
+  for (let s = maxS; s >= minS; s -= 2) {
+    setFont(ctx, kind, s, weight);
+    const lines = layout(ctx, text, maxW);
+    const tooWide = lines.some(l => l.length === 1 && l[0].w > maxW);
+    const h = lines.length * s * lh;
+    best = { size: s, lines, h, lh, kind, weight };
+    if (!tooWide && h <= maxH && (!maxLines || lines.length <= maxLines)) return best;
+  }
+  return best;
+}
+function drawFit(ctx, f, x, y, maxW, P, opt) {
+  opt = opt || {};
+  setFont(ctx, f.kind, f.size, f.weight);
+  ctx.textBaseline = "alphabetic";
+  const lineH = f.size * f.lh;
+  f.lines.forEach((line, i) => {
+    const lw = line.reduce((s, k) => s + k.w, 0);
+    let cx = opt.align === "center" ? x + (maxW - lw) / 2 : x;
+    const by = y + i * lineH + f.size * .86;
+    if (P.hlMode === "marker") {
+      let run = null;
+      line.forEach(k => { if (k.hl) { if (!run) run = { x: cx, w: 0 }; run.w += k.w; } else if (run) { mark(run); run = null; } cx += k.w; });
+      if (run) mark(run);
+      cx = opt.align === "center" ? x + (maxW - lw) / 2 : x;
+    }
+    function mark(r) { ctx.fillStyle = "#ffffff"; roundRect(ctx, r.x - f.size * .12, by - f.size * .82, r.w + f.size * .24, f.size * 1.02, f.size * .16); ctx.fill(); }
+    line.forEach(k => {
+      ctx.fillStyle = k.hl ? P.hl : (opt.color || P.fg);
+      ctx.fillText(k.t, cx, by);
+      cx += k.w;
+    });
+  });
+  return f.lines.length * lineH;
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function plain(t) { return String(t || "").replace(/\*/g, ""); }
+
+function drawV(ctx, x, y, w, P, alpha, white) {
+  const s = w / 400;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.globalAlpha *= alpha == null ? 1 : alpha;
+  if (white || P.vL) {
+    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.fill(V_R);
+    ctx.fillStyle = "#ffffff"; ctx.fill(V_L);
+  } else {
+    let g = ctx.createLinearGradient(400, 0, 60, 245); g.addColorStop(0, "#4c618f"); g.addColorStop(1, "#101a33");
+    ctx.fillStyle = g; ctx.fill(V_R);
+    g = ctx.createLinearGradient(0, 0, 150, 245); g.addColorStop(0, mix(P.acc, "#ffffff", .3)); g.addColorStop(.6, mix(P.acc, "#000000", .55)); g.addColorStop(1, P.acc);
+    ctx.fillStyle = g; ctx.fill(V_L);
+  }
+  ctx.restore();
+}
+
+function drawCheck(ctx, x, y, s, color, bad) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = s * .14; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath();
+  if (bad) { ctx.moveTo(x - s * .28, y - s * .28); ctx.lineTo(x + s * .28, y + s * .28); ctx.moveTo(x + s * .28, y - s * .28); ctx.lineTo(x - s * .28, y + s * .28); }
+  else { ctx.moveTo(x - s * .32, y); ctx.lineTo(x - s * .08, y + s * .24); ctx.lineTo(x + s * .34, y - s * .26); }
+  ctx.stroke(); ctx.restore();
+}
+
+/* moldura comum */
+function drawBase(ctx, W, H, P, proj, idx, brand) {
+  const story = proj.format === "stories", total = proj.slides.length;
+  if (P.mode === "azul") {
+    const g = ctx.createLinearGradient(0, 0, W * .6, H); g.addColorStop(0, mix(P.bg, "#ffffff", .12)); g.addColorStop(.55, P.bg); g.addColorStop(1, P.bg2);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  } else { ctx.fillStyle = P.bg; ctx.fillRect(0, 0, W, H); }
+  if (P.mode === "escuro") {
+    let g = ctx.createRadialGradient(W * .92, H * .02, 0, W * .92, H * .02, W * .95);
+    g.addColorStop(0, rgba(P.acc, .34)); g.addColorStop(.45, rgba(P.acc, .1)); g.addColorStop(1, rgba(P.acc, 0));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    g = ctx.createRadialGradient(0, H, 0, 0, H, W * .8);
+    g.addColorStop(0, "rgba(76,97,143,.22)"); g.addColorStop(1, "rgba(76,97,143,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  } else if (P.mode === "claro") {
+    const g = ctx.createRadialGradient(W * .95, 0, 0, W * .95, 0, W * .9);
+    g.addColorStop(0, rgba(P.acc, .14)); g.addColorStop(1, rgba(P.acc, 0));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  /* grade de pontos */
+  ctx.fillStyle = P.dot;
+  for (let y = 40; y < H; y += 54) for (let x = 40; x < W; x += 54) { ctx.globalAlpha = Math.max(0, 1 - y / H * .9); ctx.fillRect(x, y, 3, 3); }
+  ctx.globalAlpha = 1;
+  /* V gigante ao fundo */
+  drawV(ctx, W * .5, H - W * .38, W * .78, P, P.mode === "claro" ? .05 : .07);
+  /* cabeçalho */
+  const top = story ? 150 : 76;
+  drawV(ctx, 72, top, 58, P, 1);
+  setFont(ctx, "m", 24, 500); ctx.fillStyle = P.mode === "azul" ? P.muted : P.dim; ctx.textBaseline = "middle";
+  ctx.fillText((brand.handle || "@somosvexadigital").toUpperCase(), 148, top + 18);
+  if (total > 1 && !story) {
+    const t = String(idx + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+    const tw = ctx.measureText(t).width;
+    ctx.fillText(t, W - 72 - tw, top + 18);
+  }
+  /* rodapé */
+  if (total > 1 && !story) {
+    const by = story ? H - 236 : H - 74, gap = 10, sw = (W - 144 - gap * (total - 1)) / total;
+    for (let i = 0; i < total; i++) {
+      ctx.fillStyle = i <= idx ? P.acc : P.line;
+      roundRect(ctx, 72 + i * (sw + gap), by, sw, 6, 3); ctx.fill();
+    }
+  }
+  return { x: 72, w: W - 144, top: story ? top + 240 : top + 110, bottom: story ? H - 330 : (total > 1 ? H - 120 : H - 90) };
+}
+
+function kicker(ctx, text, x, y, P) {
+  if (!text) return 0;
+  setFont(ctx, "m", 24, 600);
+  const t = plain(text).toUpperCase(), tw = ctx.measureText(t).width;
+  ctx.strokeStyle = P.mode === "azul" ? "rgba(255,255,255,.6)" : rgba(P.acc, .7); ctx.lineWidth = 2;
+  ctx.fillStyle = P.mode === "azul" ? "rgba(255,255,255,.12)" : rgba(P.acc, .12);
+  roundRect(ctx, x, y, tw + 44, 52, 26); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = P.mode === "azul" ? "#fff" : P.hl; ctx.textBaseline = "middle";
+  ctx.fillText(t, x + 22, y + 27);
+  return 52;
+}
+
+function swipeHint(ctx, W, H, P, story) {
+  setFont(ctx, "m", 24, 600); ctx.textBaseline = "middle";
+  const t = story ? "TOQUE PARA CONTINUAR" : "ARRASTE PARA O LADO", tw = ctx.measureText(t).width, y = story ? H - 290 : H - 128;
+  ctx.fillStyle = P.mode === "azul" ? "#fff" : P.hl;
+  ctx.fillText(t, W - 72 - tw - 56, y);
+  ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(W - 112, y); ctx.lineTo(W - 74, y); ctx.moveTo(W - 90, y - 15); ctx.lineTo(W - 74, y); ctx.lineTo(W - 90, y + 15); ctx.stroke();
+}
+
+/* ---------- layouts ---------- */
+const L = {};
+L.capa = (ctx, s, A, P, W, H, proj, idx) => {
+  const story = proj.format === "stories", multi = proj.slides.length > 1;
+  const areaH = A.bottom - A.top - (multi && idx === 0 ? 70 : 0);
+  const tf = fitText(ctx, s.title, "d", 850, A.w, areaH * .66, story ? 150 : 132, 60, 1.02);
+  const sf = s.body ? fitText(ctx, s.body, "b", 500, A.w * .92, 200, 44, 30, 1.32, 4) : null;
+  const kh = s.kicker ? 52 + 40 : 0;
+  const total = kh + tf.h + (sf ? 44 + sf.h : 0);
+  let y = A.top + Math.max(0, (areaH - total) * (story ? .45 : .62));
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += kh; }
+  y += drawFit(ctx, tf, A.x, y, A.w, P);
+  if (sf) { y += 30; ctx.fillStyle = P.acc; ctx.fillRect(A.x, y, 90, 8); y += 38; drawFit(ctx, sf, A.x, y, A.w, P, { color: P.muted }); }
+  if (multi && idx === 0) swipeHint(ctx, W, H, P, story);
+};
+L.topico = (ctx, s, A, P, W, H, proj, idx) => {
+  const num = s.num || String(idx).padStart(2, "0");
+  setFont(ctx, "d", 250, 900); ctx.textBaseline = "alphabetic";
+  const ny = A.top + 210;
+  ctx.lineWidth = 3; ctx.strokeStyle = P.mode === "azul" ? "rgba(255,255,255,.75)" : rgba(P.acc, .9);
+  const g = ctx.createLinearGradient(0, ny - 200, 0, ny); g.addColorStop(0, P.mode === "azul" ? "rgba(255,255,255,.28)" : rgba(P.acc, .35)); g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g; ctx.fillText(num, A.x - 8, ny); ctx.strokeText(num, A.x - 8, ny);
+  let y = ny + 60;
+  const tf = fitText(ctx, s.title, "d", 800, A.w, 330, 92, 50, 1.05);
+  y += drawFit(ctx, tf, A.x, y, A.w, P);
+  if (s.body) {
+    y += 34; ctx.fillStyle = P.acc; ctx.fillRect(A.x, y, 70, 6); y += 40;
+    const bf = fitText(ctx, s.body, "b", 500, A.w, A.bottom - y, 46, 28, 1.38);
+    drawFit(ctx, bf, A.x, y, A.w, P, { color: P.muted });
+  }
+};
+L.lista = (ctx, s, A, P, W, H) => {
+  let y = A.top + 10;
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += 84; }
+  const tf = fitText(ctx, s.title, "d", 800, A.w, 280, 80, 44, 1.04);
+  y += drawFit(ctx, tf, A.x, y, A.w, P) + 46;
+  const items = (s.items || []).filter(Boolean).slice(0, 7);
+  if (!items.length) return;
+  const avail = A.bottom - y, n = items.length, gap = 26;
+  let size = 44, fits = [];
+  for (; size >= 24; size -= 2) {
+    fits = items.map(it => fitText(ctx, it, "b", 600, A.w - 110, 999, size, size, 1.25));
+    const h = fits.reduce((a, f) => a + Math.max(f.h, 72), 0) + gap * (n - 1);
+    if (h <= avail) break;
+  }
+  fits.forEach((f, i) => {
+    const rowH = Math.max(f.h, 72);
+    ctx.fillStyle = P.mode === "azul" ? "#ffffff" : P.acc;
+    ctx.beginPath(); ctx.arc(A.x + 34, y + 36, 34, 0, Math.PI * 2); ctx.fill();
+    setFont(ctx, "d", 30, 800); ctx.fillStyle = P.mode === "azul" ? P.bg : "#ffffff"; ctx.textBaseline = "middle";
+    const t = String(i + 1), tw = ctx.measureText(t).width; ctx.fillText(t, A.x + 34 - tw / 2, y + 38);
+    drawFit(ctx, f, A.x + 104, y + Math.max(0, (72 - f.size * 1.25) / 2), A.w - 110, P);
+    y += rowH + gap;
+  });
+};
+L.dado = (ctx, s, A, P, W, H) => {
+  let y = A.top + 20;
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += 100; }
+  const nf = fitText(ctx, s.num || "00%", "d", 900, A.w, 330, 330, 120, .95, 1);
+  setFont(ctx, "d", nf.size, 900);
+  const g = ctx.createLinearGradient(A.x, y, A.x + A.w, y + nf.size);
+  if (P.mode === "azul") { g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#cfe0ff"); } else { g.addColorStop(0, P.hl); g.addColorStop(1, P.acc); }
+  ctx.fillStyle = g; ctx.textBaseline = "alphabetic"; ctx.fillText(plain(s.num || "00%"), A.x - 6, y + nf.size * .86);
+  y += nf.size * .95 + 30;
+  const pct = parseFloat(String(s.num || "").replace(",", "."));
+  if (/%/.test(s.num || "") && pct > 0 && pct <= 100) {
+    ctx.fillStyle = P.line; roundRect(ctx, A.x, y, A.w, 18, 9); ctx.fill();
+    ctx.fillStyle = P.mode === "azul" ? "#fff" : P.acc; roundRect(ctx, A.x, y, A.w * pct / 100, 18, 9); ctx.fill();
+    y += 66;
+  }
+  const lf = fitText(ctx, s.label || "", "d", 700, A.w, A.bottom - y - 90, 66, 38, 1.1);
+  y += drawFit(ctx, lf, A.x, y, A.w, P);
+  if (s.body) { y += 28; const bf = fitText(ctx, s.body, "b", 500, A.w, A.bottom - y - 70, 38, 26, 1.35); y += drawFit(ctx, bf, A.x, y, A.w, P, { color: P.muted }); }
+  if (s.source) { setFont(ctx, "m", 22, 500); ctx.fillStyle = P.dim; ctx.textBaseline = "alphabetic"; ctx.fillText(plain(s.source).toUpperCase().slice(0, 70), A.x, A.bottom - 6); }
+};
+L.comparacao = (ctx, s, A, P, W, H, proj) => {
+  const story = proj.format === "stories";
+  let y = A.top + 10;
+  const tf = fitText(ctx, s.title, "d", 800, A.w, story ? 330 : 250, 78, 44, 1.04);
+  y += drawFit(ctx, tf, A.x, y, A.w, P) + 50;
+  const sides = [{ h: s.leftH || "Antes", items: s.left || [], bad: true }, { h: s.rightH || "Depois", items: s.right || [], bad: false }];
+  const gap = 28, cw = story ? A.w : (A.w - gap) / 2, chMax = story ? (A.bottom - y - gap) / 2 : A.bottom - y;
+  const prep = sides.map(sd => {
+    const items = sd.items.filter(Boolean).slice(0, 6);
+    let size = 34, fits;
+    for (; size >= 22; size -= 2) {
+      fits = items.map(t => fitText(ctx, t, "b", 500, cw - 96, 999, size, size, 1.25));
+      if (fits.reduce((a, f) => a + f.h + 22, 0) <= chMax - 150) break;
+    }
+    return fits;
+  });
+  const sz = Math.min.apply(null, prep.map(f => f.length ? f[0].size : 34));
+  prep.forEach((fs, i) => { prep[i] = sides[i].items.filter(Boolean).slice(0, 6).map(t => fitText(ctx, t, "b", 500, cw - 96, 999, sz, sz, 1.25)); });
+  const need = prep.map(fs => fs.reduce((a, f) => a + f.h + 22, 0) + 150);
+  const ch = story ? Math.min(chMax, Math.max(300, Math.max.apply(null, need))) : Math.min(chMax, Math.max(380, Math.max.apply(null, need)));
+  if (!story) y += Math.max(0, (chMax - ch) * .35);
+  sides.forEach((sd, i) => {
+    const cx = story ? A.x : A.x + i * (cw + gap), cy = story ? y + i * (ch + gap) : y;
+    ctx.fillStyle = sd.bad ? P.card : (P.mode === "azul" ? "rgba(255,255,255,.18)" : rgba(P.acc, .12));
+    roundRect(ctx, cx, cy, cw, ch, 28); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = sd.bad ? P.cardLine : (P.mode === "azul" ? "#fff" : P.acc); ctx.stroke();
+    const col = sd.bad ? P.bad : (P.mode === "azul" ? "#fff" : P.acc);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx + 58, cy + 62, 28, 0, Math.PI * 2); ctx.globalAlpha = .18; ctx.fill(); ctx.globalAlpha = 1;
+    drawCheck(ctx, cx + 58, cy + 62, 34, col, sd.bad);
+    setFont(ctx, "d", 36, 800); ctx.fillStyle = P.fg; ctx.textBaseline = "middle"; ctx.fillText(plain(sd.h), cx + 104, cy + 64);
+    let iy = cy + 126;
+    prep[i].forEach(f => {
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx + 50, iy + f.size * .62, 6, 0, Math.PI * 2); ctx.fill();
+      drawFit(ctx, f, cx + 72, iy, cw - 96, P, { color: sd.bad ? P.muted : P.fg });
+      iy += f.h + 22;
+    });
+  });
+};
+L.texto = (ctx, s, A, P, W, H) => {
+  let y = A.top + 20;
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += 100; }
+  if (s.title) { const tf = fitText(ctx, s.title, "d", 800, A.w, 300, 80, 44, 1.04); y += drawFit(ctx, tf, A.x, y, A.w, P) + 50; }
+  const bf = fitText(ctx, s.body || "", "b", 500, A.w - 50, A.bottom - y, 56, 30, 1.34);
+  const by = y + Math.max(0, (A.bottom - y - bf.h) * .3);
+  ctx.fillStyle = P.mode === "azul" ? "#fff" : P.acc; roundRect(ctx, A.x, by + 6, 8, bf.h - 12, 4); ctx.fill();
+  drawFit(ctx, bf, A.x + 50, by, A.w - 50, P);
+};
+L.tweet = (ctx, s, A, P, W, H, proj, idx, brand, avatar) => {
+  const light = P.mode !== "escuro";
+  const pad = 56, cw = A.w, tx = A.x + pad, tw = cw - pad * 2;
+  const text = (s.title ? s.title : "") + (s.title && s.body ? "\n\n" : "") + (s.body || "");
+  const maxTextH = A.bottom - A.top - 260;
+  const tf = fitText(ctx, text, "b", 500, tw, maxTextH, 60, 30, 1.3);
+  const ch = 56 + 120 + 40 + tf.h + 70;
+  const cy = A.top + Math.max(0, (A.bottom - A.top - ch) / 2);
+  ctx.save();
+  if (light) { ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; }
+  ctx.fillStyle = light ? "#ffffff" : "#0b1122";
+  roundRect(ctx, A.x, cy, cw, ch, 36); ctx.fill(); ctx.restore();
+  if (!light) { ctx.strokeStyle = P.cardLine; ctx.lineWidth = 2; roundRect(ctx, A.x, cy, cw, ch, 36); ctx.stroke(); }
+  const ax = tx + 56, ay = cy + 56 + 56;
+  ctx.save(); ctx.beginPath(); ctx.arc(ax, ay, 56, 0, Math.PI * 2); ctx.closePath();
+  if (avatar && avatar.complete && avatar.naturalWidth) { ctx.clip(); const r = Math.max(112 / avatar.naturalWidth, 112 / avatar.naturalHeight); ctx.drawImage(avatar, ax - avatar.naturalWidth * r / 2, ay - avatar.naturalHeight * r / 2, avatar.naturalWidth * r, avatar.naturalHeight * r); }
+  else { ctx.fillStyle = "#04060d"; ctx.fill(); ctx.clip(); drawV(ctx, ax - 38, ay - 22, 76, palette("escuro", P.mode === "azul" ? proj._accent : P.acc), 1); }
+  ctx.restore();
+  const fg = light ? "#0b1020" : "#f2f5ff", mut = light ? "#5b6785" : "#8e9bbd";
+  setFont(ctx, "b", 40, 700); ctx.fillStyle = fg; ctx.textBaseline = "alphabetic";
+  const name = brand.name || "Vexa Digital"; ctx.fillText(name, ax + 80, ay - 6);
+  const nw = ctx.measureText(name).width, bx = ax + 80 + nw + 26, byy = ay - 20;
+  const badge = P.mode === "azul" ? proj._accent || "#1f66ff" : P.acc;
+  ctx.fillStyle = badge; ctx.beginPath();
+  for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2, r = k % 2 ? 15 : 19; ctx.lineTo(bx + Math.cos(a) * r, byy + Math.sin(a) * r); }
+  ctx.closePath(); ctx.fill(); drawCheck(ctx, bx, byy + 1, 18, "#fff");
+  setFont(ctx, "b", 32, 500); ctx.fillStyle = mut; ctx.fillText(brand.handle || "@somosvexadigital", ax + 80, ay + 38);
+  const tP = Object.assign({}, P, { fg, hl: P.mode === "azul" ? (proj._accent || "#1f66ff") : (light ? P.hl : P.hl), hlMode: "color" });
+  drawFit(ctx, tf, tx, cy + 56 + 120 + 40, tw, tP);
+};
+L.cta = (ctx, s, A, P, W, H, proj, idx, brand) => {
+  const cx = W / 2;
+  let y = A.top + 30;
+  ctx.save(); ctx.shadowColor = rgba(P.mode === "azul" ? "#ffffff" : P.acc, .7); ctx.shadowBlur = 60; drawV(ctx, cx - 120, y, 240, P, 1); ctx.restore();
+  y += 147 + 70;
+  const tf = fitText(ctx, s.title, "d", 850, A.w, 380, 100, 50, 1.04);
+  y += drawFit(ctx, tf, A.x, y, A.w, P, { align: "center" }) + 34;
+  if (s.body) { const bf = fitText(ctx, s.body, "b", 500, A.w * .86, 170, 42, 28, 1.32); y += drawFit(ctx, bf, A.x + A.w * .07, y, A.w * .86, P, { align: "center", color: P.muted }) + 50; }
+  const label = plain(s.button || brand.cta || "Chama no direct");
+  setFont(ctx, "d", 40, 800);
+  const bw = Math.min(A.w, ctx.measureText(label).width + 140), bh = 104, bx = cx - bw / 2;
+  ctx.save(); ctx.shadowColor = rgba(P.mode === "azul" ? "#000000" : P.acc, .6); ctx.shadowBlur = 40; ctx.shadowOffsetY = 12;
+  ctx.fillStyle = P.mode === "azul" ? "#ffffff" : P.acc; roundRect(ctx, bx, y, bw, bh, bh / 2); ctx.fill(); ctx.restore();
+  ctx.fillStyle = P.mode === "azul" ? (proj._accent || "#1f66ff") : "#ffffff"; ctx.textBaseline = "middle";
+  const lw = ctx.measureText(label).width; ctx.fillText(label, cx - lw / 2, y + bh / 2 + 2);
+  y += bh + 44;
+  setFont(ctx, "m", 26, 600); ctx.fillStyle = P.mode === "azul" ? "#fff" : P.hl;
+  const ct = plain(brand.contact || brand.handle || "").toUpperCase(), ctw = ctx.measureText(ct).width; ctx.fillText(ct, cx - ctw / 2, y);
+};
+L.pergunta = (ctx, s, A, P, W, H, proj) => {
+  const story = proj.format === "stories";
+  let y = A.top + 20;
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += 100; }
+  const tf = fitText(ctx, s.title, "d", 850, A.w, story ? 520 : 400, 110, 54, 1.03);
+  y += drawFit(ctx, tf, A.x, y, A.w, P) + 60;
+  const opts = (s.items && s.items.length ? s.items : ["Opção A", "Opção B"]).slice(0, 2);
+  opts.forEach((o, i) => {
+    const bh = 150;
+    ctx.fillStyle = i === 0 ? P.card : (P.mode === "azul" ? "rgba(255,255,255,.18)" : rgba(P.acc, .14));
+    roundRect(ctx, A.x, y, A.w, bh, 30); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = i === 0 ? P.cardLine : (P.mode === "azul" ? "#fff" : P.acc); ctx.stroke();
+    ctx.fillStyle = P.mode === "azul" ? "#fff" : P.acc; ctx.beginPath(); ctx.arc(A.x + 78, y + bh / 2, 40, 0, Math.PI * 2); ctx.fill();
+    setFont(ctx, "d", 40, 900); ctx.fillStyle = P.mode === "azul" ? (proj._accent || "#1f66ff") : "#fff"; ctx.textBaseline = "middle";
+    const L2 = i ? "B" : "A", lw = ctx.measureText(L2).width; ctx.fillText(L2, A.x + 78 - lw / 2, y + bh / 2 + 2);
+    const of = fitText(ctx, o, "d", 700, A.w - 180, bh - 30, 48, 28, 1.1);
+    drawFit(ctx, of, A.x + 146, y + (bh - of.h) / 2, A.w - 180, P);
+    y += bh + 26;
+  });
+  if (s.body) { y += 14; const bf = fitText(ctx, s.body, "b", 500, A.w, A.bottom - y, 38, 26, 1.3); drawFit(ctx, bf, A.x, y, A.w, P, { color: P.muted }); }
+};
+
+function renderSlide(cv, proj, idx, brand, scale, avatar) {
+  const F = FMT[proj.format], W = F.w, H = F.h, s = scale || 1;
+  cv.width = Math.round(W * s); cv.height = Math.round(H * s);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(s, 0, 0, s, 0, 0);
+  const P = palette(proj.bg, brand.accent);
+  proj._accent = brand.accent || "#1f66ff";
+  const A = drawBase(ctx, W, H, P, proj, idx, brand);
+  const sl = proj.slides[idx];
+  const type = proj.style === "tweet" && ["capa", "topico", "texto"].indexOf(sl.type) >= 0 ? "tweet" : sl.type;
+  (L[type] || L.texto)(ctx, sl, A, P, W, H, proj, idx, brand, avatar);
+  return cv;
+}
+
+/* =========================================================
+   Motor de geração: modelos prontos + IA (Claude)
+   ========================================================= */
+const rint = n => Math.floor(Math.random() * n);
+const pickOne = a => a[rint(a.length)];
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rint(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function cap(s) { s = String(s || "").trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function filler(b, brand, n) {
+  const A = AUD[b.aud] || AUD.geral;
+  const map = { neg: A.neg, cl: A.cl, cl_cap: cap(A.cl), cli: A.cli, cli_cap: cap(A.cli), quem: A.quem, n: n || 5, handle: brand.handle || "@somosvexadigital", cta: brand.cta || "Chama no direct" };
+  return s => String(s || "").replace(/\{(\w+)\}/g, (m, k) => map[k] != null ? map[k] : m);
+}
+
+function themeTitle(t) {
+  t = cap(t.replace(/[.\s]+$/, ""));
+  const w = t.split(" ");
+  if (w.length > 3) { const k = Math.min(3, Math.ceil(w.length / 3)); return w.slice(0, -k).join(" ") + " *" + w.slice(-k).join(" ") + "*"; }
+  return "*" + t + "*";
+}
+
+function generateTemplate(b, brand) {
+  const T = TOPICS[b.topic] || TOPICS.site;
+  const isCar = b.format === "carrossel", isStory = b.format === "stories";
+  const N = b.format === "post" ? 1 : b.count;
+  const tips = shuffle(T.tips);
+  const nTips = Math.max(1, Math.min(tips.length, isCar ? N - 2 : N - 1));
+  const f = filler(b, brand, isCar ? nTips : Math.min(5, tips.length));
+  const hook = b.theme ? themeTitle(b.theme) : f(pickOne(T.hooks[b.goal]));
+  const sub = f(T.sub[b.goal]);
+  const kick = T.label;
+  const ctaS = { type: "cta", title: f(CTA[b.goal].t), body: f(CTA[b.goal].b), button: b.goal === "ensinar" ? "Seguir " + (brand.handle || "@somosvexadigital") : b.goal === "engajar" ? "Comenta aqui" : (brand.cta || "Chama no direct") };
+  const pairs = shuffle(T.pairs).slice(0, 4);
+  const cmp = (lh, rh) => ({ type: "comparacao", title: b.goal === "vender" ? "Sem estratégia x *com a Vexa*" : "O que *trava* x o que *funciona*", leftH: lh || "Errado", rightH: rh || "Certo", left: pairs.map(p => f(p.bad)), right: pairs.map(p => f(p.good)) });
+  const dataS = () => { const d = pickOne(T.data); return { type: "dado", kicker: "Dado", num: "00%", label: f(d.label), source: "Fonte: [inserir fonte]", _hint: f(d.hint) }; };
+  const topic = (t, i) => ({ type: "topico", num: String(i + 1).padStart(2, "0"), title: f(t.t), body: f(t.b) });
+  const listS = (title, arr) => ({ type: "lista", kicker: kick, title, items: arr.map(f) });
+  const deb = pickOne(T.debates);
+  const ask = { type: "pergunta", kicker: "Sua opinião", title: f(deb.q), items: [f(deb.a), f(deb.b)], body: "Responde nos comentários: A ou B?" };
+
+  let slides = [];
+  if (b.format === "post") {
+    if (b.style === "lista") slides = [listS(hook, tips.slice(0, 5).map(t => t.t))];
+    else if (b.style === "dados") slides = [Object.assign(dataS(), { kicker: kick })];
+    else if (b.goal === "engajar") slides = [ask];
+    else slides = [{ type: "capa", kicker: kick, title: hook, body: b.style === "tweet" ? f(tips[0].b) : sub }];
+  } else {
+    let mid = [];
+    if (b.goal === "vender") {
+      mid = [{ type: "texto", kicker: "Se identificou?", body: T.pains.map(f).join("\n") }, cmp("Sem estratégia", "Com a Vexa"), listS("O que você *recebe*", T.benefits), { type: "texto", title: f(T.offer.t), body: f(T.offer.b) }];
+      if (b.style === "dados") mid.splice(1, 0, dataS());
+    } else if (b.goal === "autoridade") {
+      mid = [{ type: "texto", kicker: "Visão Vexa", body: f(T.insights[0]) }, dataS(), cmp(), { type: "texto", body: f(T.insights[1]) }];
+    } else if (b.goal === "engajar") {
+      mid = [{ type: "texto", kicker: "Vamos conversar", body: f(T.insights[0]) }, cmp("Lado A", "Lado B"), ask];
+    } else {
+      if (b.style === "lista") mid = [listS("Resumo *rápido*", tips.slice(0, Math.min(5, nTips)).map(t => t.t))];
+      if (b.style === "dados") mid = [dataS(), cmp()];
+    }
+    const need = N > 1 ? N - 2 : 0;
+    let k = 0;
+    while (mid.length < need && k < tips.length) { mid.push(topic(tips[k], k)); k++; }
+    mid = mid.slice(0, Math.max(0, need));
+    let n = 0; mid.forEach(m => { if (m.type === "topico") { m.num = String(++n).padStart(2, "0"); } });
+    slides = [{ type: "capa", kicker: kick, title: hook, body: sub }].concat(mid);
+    if (isCar || N > 1) slides.push(b.goal === "engajar" && !mid.some(m => m.type === "pergunta") ? ask : ctaS);
+    if (isStory && N === 1) slides = [{ type: "capa", kicker: kick, title: hook, body: f(CAPTION_CTA[b.goal]) }];
+  }
+
+  const used = slides.filter(s => s.type === "topico").map(s => "→ " + plain(s.title));
+  const lines = [plain(hook)];
+  lines.push("");
+  if (used.length) { lines.push("Neste post:"); lines.push.apply(lines, used); }
+  else lines.push(plain(sub));
+  lines.push(""); lines.push(f(CAPTION_CTA[b.goal]));
+  const tags = T.tags.concat([(AUD[b.aud] || AUD.geral).tag, "#marketingdigital"]).concat((brand.tags || "").split(/\s+/).filter(t => /^#/.test(t)));
+  return { slides, caption: lines.join("\n"), tags: Array.from(new Set(tags)).join(" ") };
+}
+
+/* ---------- IA ---------- */
+const AI_TYPES = {
+  capa: "{type:'capa', kicker, title, body}",
+  topico: "{type:'topico', title, body}",
+  lista: "{type:'lista', kicker, title, items:[3 a 6 itens curtos]}",
+  dado: "{type:'dado', kicker, num, label, body, source}",
+  comparacao: "{type:'comparacao', title, leftH, left:[3-4 itens], rightH, right:[3-4 itens]}",
+  texto: "{type:'texto', kicker, title?, body}",
+  pergunta: "{type:'pergunta', kicker, title (pergunta), items:[opção A, opção B], body}",
+  cta: "{type:'cta', title, body, button}"
+};
+function buildPrompt(b, brand) {
+  const A = AUD[b.aud] || AUD.geral, T = TOPICS[b.topic] || TOPICS.site;
+  const N = b.format === "post" ? 1 : b.count;
+  const goals = { ensinar: "educar com dicas práticas que geram salvamentos", vender: "converter em conversa no WhatsApp/direct (venda dos serviços da Vexa)", autoridade: "mostrar autoridade e visão de especialista", engajar: "gerar comentários e debate" };
+  const styles = { manchete: "manchetes fortes, frases curtas", lista: "use slides 'lista' e passos numerados", dados: "inclua slides 'dado' e 'comparacao'", tweet: "texto corrido em tom de conversa, como um post de opinião; prefira slides 'capa', 'topico' e 'texto' (serão desenhados como tweet)" };
+  const system = [
+    "Você é o redator-chefe do Vex Studio, estúdio de conteúdo da Vexa Digital (agência de sites, tráfego pago, automação e social media de Ribeirão Preto-SP que atende todo o Brasil).",
+    "Escreva em português do Brasil, no estilo dos grandes produtores de conteúdo de negócios do país: ganchos fortes, frases curtas, direto ao ponto, prático, sem clichês de coach, sem jargão desnecessário.",
+    "Regras: 1) NUNCA invente estatísticas, pesquisas ou números. Em slides 'dado', se o usuário não forneceu o número, use num '00%' e source 'Fonte: [inserir fonte]' e descreva em label qual dado real procurar. 2) Não prometa resultados garantidos. 3) Use *asteriscos* para destacar 1 a 3 palavras-chave em títulos. 4) Títulos até 70 caracteres; body até 220; itens até 60. 5) No máximo 3 emojis na legenda e nenhum nos slides. 6) Responda APENAS com JSON válido, sem texto antes ou depois."
+  ].join("\n");
+  const user = [
+    "Crie um conteúdo para o Instagram.",
+    "Formato: " + (b.format === "carrossel" ? "carrossel de " + N + " slides" : b.format === "post" ? "post único (1 slide)" : "sequência de " + N + " stories"),
+    "Objetivo: " + goals[b.goal],
+    "Estilo visual: " + styles[b.style],
+    "Assunto: " + T.label + (b.theme ? " · tema específico: " + b.theme : ""),
+    "Público: " + A.quem + " (chame o negócio deles de '" + A.neg + "' e os clientes deles de '" + A.cli + "', no singular '" + A.cl + "')",
+    "Marca: " + (brand.name || "Vexa Digital") + " " + (brand.handle || "") + ". Chamada final padrão: '" + (brand.cta || "Chama no direct") + "'.",
+    N > 1 ? "Estrutura: o primeiro slide é 'capa' com o gancho; o último é 'cta' (ou 'pergunta' se o objetivo for engajar)." : "",
+    "Tipos de slide permitidos: " + Object.values(AI_TYPES).join(" | "),
+    "Formato da resposta: {\"slides\":[...exatamente " + N + " slides...],\"caption\":\"legenda de 500 a 1100 caracteres com quebras de linha, gancho na primeira linha e CTA no final\",\"hashtags\":[\"#...\" 8 a 12 hashtags relevantes em português]}"
+  ].filter(Boolean).join("\n");
+  return { system, user };
+}
+async function generateSample(b, brand, sample) {
+  const p = buildPrompt(b, brand);
+  const data = await sample.json(p.system + "\n\n" + p.user, { modelTier: "default", cache: false });
+  return normalizeAI(data, b, brand);
+}
+async function generateAI(b, brand, key, model) {
+  const p = buildPrompt(b, brand);
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+    body: JSON.stringify({ model, max_tokens: 3000, system: p.system, messages: [{ role: "user", content: p.user }] })
+  });
+  if (!res.ok) { let m = res.status + ""; try { const j = await res.json(); m = (j.error && j.error.message) || m; } catch (e) {} throw new Error(m); }
+  const j = await res.json();
+  const txt = (j.content || []).map(c => c.text || "").join("");
+  const s = txt.indexOf("{"), e = txt.lastIndexOf("}");
+  return normalizeAI(JSON.parse(txt.slice(s, e + 1)), b, brand);
+}
+function normalizeAI(data, b, brand) {
+  const ok = Object.keys(AI_TYPES);
+  const slides = (data.slides || []).map(x => {
+    x.type = ok.indexOf(x.type) >= 0 ? x.type : "texto";
+    ["items", "left", "right"].forEach(k => { if (x[k] && !Array.isArray(x[k])) x[k] = String(x[k]).split("\n"); });
+    if (x.type === "dado" && (!x.num || /00%|\[/.test(x.num + (x.source || "")))) x._hint = "Troque por um dado real e cite a fonte.";
+    return x;
+  });
+  if (!slides.length) throw new Error("A IA não devolveu slides.");
+  const tags = (data.hashtags || []).concat((brand.tags || "").split(/\s+/).filter(t => /^#/.test(t)));
+  return { slides: b.format === "post" ? slides.slice(0, 1) : slides, caption: data.caption || "", tags: Array.from(new Set(tags)).join(" ") };
+}
+
+/* =========================================================
+   App
+   ========================================================= */
+const PASS_HASH = "7e89427319fb773fff1161b306660bad0d2a89227db47cc0c44aac3d66f2b456";
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast("Sem espaço para salvar no navegador.", true); return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const DEF_BRAND = { name: "Vexa Digital", handle: "@somosvexadigital", avatar: null, accent: "#1f66ff", cta: "Chama no direct", contact: "Link na bio", tags: "#vexadigital #ribeiraopreto" };
+let brand = Object.assign({}, DEF_BRAND, LS.get("vs-brand", {}));
+let avatarImg = null;
+function loadAvatar() { avatarImg = null; if (brand.avatar) { avatarImg = new Image(); avatarImg.onload = () => { if (proj) refresh(); }; avatarImg.src = brand.avatar; } }
+loadAvatar();
+
+const brief = { format: "carrossel", goal: "ensinar", style: "manchete", topic: "site", aud: "geral", theme: "", count: 7, bg: "escuro", ai: false };
+let proj = null, cur = 0;
+const CL = { sample: null, downloads: null };
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("sample").then(s => { CL.sample = s; syncAI(); }).catch(() => {});
+  window.claude.use("downloads").then(d => { CL.downloads = d; }).catch(() => {});
+}
+
+/* ---------- utilidades ---------- */
+function toast(msg, err) {
+  const t = document.createElement("div"); t.className = "toast" + (err ? " err" : ""); t.innerHTML = "<i></i><span></span>"; t.lastChild.textContent = msg;
+  $("#toasts").appendChild(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 320); }, err ? 5200 : 2800);
+}
+let sayT = 0;
+function vexSay(m) { const el = $("#vex-say"); el.style.opacity = 0; clearTimeout(sayT); sayT = setTimeout(() => { el.textContent = m; el.style.opacity = 1; }, 180); }
+const TIPS = ["Dica: use *asteriscos* no texto para destacar palavras na cor da marca.", "Carrossel com 7 slides costuma ser um bom tamanho para dicas.", "O primeiro slide é o gancho. Se ele não prende, o resto não é visto.", "Antes de postar, troque os dados de exemplo por números reais com fonte.", "Toque em Surpresa quando faltar ideia de pauta.", "Salve os posts que deram certo na Biblioteca para reaproveitar depois."];
+let tipI = 0; setInterval(() => { if (document.hidden || !$("#app").classList.contains("on")) return; vexSay(TIPS[tipI++ % TIPS.length].replace(/\*/g, "")); }, 14000);
+async function sha(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, "0")).join(""); }
+function fontsReady() { return Promise.all(["850 60px Archivo", "900 60px Archivo", "700 60px Archivo", "500 30px 'Instrument Sans'", "700 30px 'Instrument Sans'", "600 30px 'Instrument Sans'", "500 24px 'JetBrains Mono'", "600 24px 'JetBrains Mono'"].map(f => document.fonts.load(f).catch(() => {}))).then(() => document.fonts.ready); }
+
+/* ---------- fundo animado ---------- */
+(function bg() {
+  const cv = $("#bg"), c = cv.getContext("2d"), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W, H, pts = [];
+  function size() { const d = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; c.setTransform(d, 0, 0, d, 0, 0); pts = Array.from({ length: Math.round(W * H / 26000) }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .18, vy: (Math.random() - .5) * .18 })); }
+  size(); addEventListener("resize", size);
+  function f() {
+    if (!document.hidden) {
+      c.clearRect(0, 0, W, H);
+      for (const p of pts) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1; }
+      for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+        const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 130) { c.strokeStyle = "rgba(108,158,255," + (.12 * (1 - d / 130)) + ")"; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); }
+      }
+      c.fillStyle = "rgba(156,194,255,.55)"; for (const p of pts) c.fillRect(p.x - 1, p.y - 1, 2, 2);
+    }
+    if (!reduce) requestAnimationFrame(f);
+  }
+  f();
+})();
+
+/* ---------- login ---------- */
+async function enter() {
+  $("#gate").hidden = true; $("#app").hidden = false;
+  await fontsReady();
+  requestAnimationFrame(() => $("#app").classList.add("on"));
+  drawStylePreviews(); syncAI(); fillBrand(); fillSettings();
+  vexSay("Oi! Escolhe o formato e o assunto que eu monto o post.");
+}
+$("#gate-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const h = await sha("vexstudio:" + $("#gate-pass").value);
+  if (h === PASS_HASH) { LS.set("vs-auth", h); enter(); }
+  else { $("#gate-err").textContent = "Senha incorreta. Tenta de novo."; const c = $(".gate-card"); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); }
+});
+$("#logout").addEventListener("click", () => { LS.del("vs-auth"); location.reload(); });
+if (LS.get("vs-auth") === PASS_HASH) enter(); else setTimeout(() => $("#gate-pass").focus(), 300);
+
+/* ---------- navegação ---------- */
+const TITLES = { create: ["Criar", "Criar conteúdo"], library: ["Biblioteca", "Posts salvos"], brand: ["Marca", "Identidade visual"], settings: ["Ajustes", "Configurações"] };
+$$(".nav-b[data-view]").forEach(b => b.addEventListener("click", () => go(b.dataset.view)));
+function go(v) {
+  $$(".nav-b[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  $$(".view").forEach(s => { s.hidden = s.id !== "v-" + v; });
+  const el = $("#v-" + v); el.style.animation = "none"; void el.offsetWidth; el.style.animation = "";
+  $("#crumb").textContent = "Vex Studio · " + TITLES[v][0]; $("#view-title").textContent = TITLES[v][1];
+  if (v === "library") drawLib();
+}
+$$(".mtabs button").forEach(b => b.addEventListener("click", () => mtab(b.dataset.mt)));
+function mtab(k) { $$(".mtabs button").forEach(b => b.classList.toggle("on", b.dataset.mt === k)); $(".create .panel.left").classList.toggle("on", k === "left"); $(".create .stage").classList.toggle("on", k === "stage"); $(".create .panel.right").classList.toggle("on", k === "right"); if (k === "stage" && proj) refresh(); $("#v-create").scrollTop = 0; }
+
+/* ---------- briefing ---------- */
+function bindGroup(id, key, after) {
+  $$("#" + id + " [data-v]").forEach(b => b.addEventListener("click", () => {
+    $$("#" + id + " [data-v]").forEach(x => x.classList.toggle("on", x === b));
+    brief[key] = b.dataset.v; if (after) after();
+  }));
+}
+function setGroup(id, v) { $$("#" + id + " [data-v]").forEach(x => x.classList.toggle("on", x.dataset.v === v)); }
+bindGroup("f-format", "format", syncCount);
+bindGroup("f-goal", "goal");
+bindGroup("f-style", "style");
+bindGroup("f-topic", "topic");
+bindGroup("f-bg", "bg", () => { drawStylePreviews(); if (proj) { proj.bg = brief.bg; refresh(); } });
+$("#f-aud").addEventListener("change", e => brief.aud = e.target.value);
+$("#f-theme").addEventListener("input", e => brief.theme = e.target.value.trim());
+$("#f-count").addEventListener("input", e => { brief.count = +e.target.value; $("#count-out").textContent = brief.count; });
+function syncCount() {
+  const r = $("#f-count"), g = $("#g-count");
+  g.hidden = brief.format === "post";
+  if (brief.format === "stories") { r.min = 1; r.max = 5; if (brief.count > 5) brief.count = 3; }
+  else { r.min = 3; r.max = 10; if (brief.count < 3) brief.count = 7; }
+  r.value = brief.count; $("#count-out").textContent = brief.count;
+}
+$("#f-ai").addEventListener("click", e => { const on = e.currentTarget.getAttribute("aria-checked") !== "true"; e.currentTarget.setAttribute("aria-checked", on); brief.ai = on; syncAI(); });
+function syncAI() {
+  const key = LS.get("vs-key", ""), can = !!(key || CL.sample);
+  const t = $("#f-ai"); t.disabled = !can;
+  if (!can) { brief.ai = false; t.setAttribute("aria-checked", "false"); }
+  $("#ai-sub").textContent = can ? (brief.ai ? "O Vex escreve textos originais com a Claude" : "Desligado: usa a biblioteca de modelos") : "Adicione sua chave em Ajustes para ligar";
+  const p = $("#ai-pill"); p.classList.toggle("ai", brief.ai); p.lastChild.textContent = brief.ai ? "IA LIGADA" : "MODELOS";
+}
+$("#surprise").addEventListener("click", () => {
+  const r = a => a[Math.floor(Math.random() * a.length)];
+  brief.format = r(["carrossel", "carrossel", "post", "stories"]); brief.goal = r(["ensinar", "vender", "autoridade", "engajar"]); brief.style = r(["manchete", "lista", "dados", "tweet"]); brief.topic = r(Object.keys(TOPICS));
+  brief.theme = Math.random() < .5 ? r(IDEAS) : ""; $("#f-theme").value = brief.theme;
+  ["format", "goal", "style", "topic"].forEach(k => setGroup("f-" + k, brief[k])); syncCount();
+  vexSay("Sorteei um briefing. Gostou? É só gerar!");
+});
+
+/* prévias dos estilos */
+function drawStylePreviews() {
+  const sample = {
+    manchete: { type: "capa", kicker: "Sites", title: "Seu site precisa *vender*", body: "" },
+    lista: { type: "lista", title: "3 *ajustes*", items: ["Velocidade", "Botão claro", "Prova social"] },
+    dados: { type: "dado", num: "73%", label: "dado com fonte real" },
+    tweet: { type: "tweet", title: "Curtida não paga boleto. *Venda paga.*", body: "" }
+  };
+  $$("#f-style .st-card").forEach(c => {
+    const k = c.dataset.v, cv = c.querySelector("canvas");
+    const p = { format: "post", style: k === "tweet" ? "tweet" : "x", bg: brief.bg, slides: [sample[k]] };
+    const off = document.createElement("canvas"); renderSlide(off, p, 0, brand, .3, avatarImg);
+    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, 240, 180);
+    const sy = { manchete: .3, lista: .08, dados: .08, tweet: .22 }[k]; ctx.drawImage(off, 0, off.height * sy, off.width, off.width * .75, 0, 0, 240, 180);
+  });
+}
+
+/* ---------- gerar ---------- */
+const busy = $("#busy");
+async function run(steps, work) {
+  busy.hidden = false;
+  let i = 0; $("#busy-step").textContent = steps[0];
+  const iv = setInterval(() => { i = Math.min(steps.length - 1, i + 1); $("#busy-step").textContent = steps[i]; }, 650);
+  try { return await work(); } finally { clearInterval(iv); busy.hidden = true; }
+}
+$("#gen").addEventListener("click", async () => {
+  const b = Object.assign({}, brief);
+  let out;
+  try {
+    if (b.ai) {
+      out = await run(["Lendo o briefing…", "Pensando no gancho…", "Escrevendo os slides…", "Revisando o texto…", "Quase lá…"], () => LS.get("vs-key", "") ? generateAI(b, brand, LS.get("vs-key", ""), LS.get("vs-model", "claude-sonnet-5-5")) : generateSample(b, brand, CL.sample));
+    } else {
+      out = await run(["Escolhendo o gancho…", "Montando os slides…", "Aplicando a identidade…"], () => new Promise(r => setTimeout(() => r(generateTemplate(b, brand)), 1500)));
+    }
+  } catch (e) { toast("Não consegui gerar com IA: " + e.message, true); vexSay("Ops, a IA não respondeu. Confere a chave em Ajustes ou desliga a IA."); return; }
+  proj = { id: "p" + Date.now(), created: Date.now(), format: b.format, goal: b.goal, style: b.style, topic: b.topic, aud: b.aud, theme: b.theme, bg: b.bg, ai: b.ai, slides: out.slides, caption: out.caption, tags: out.tags };
+  cur = 0; showProject(true);
+  const warn = proj.slides.some(s => s._hint);
+  vexSay(warn ? "Pronto! Só troca os dados de exemplo por números reais antes de postar." : "Pronto! Edita o que quiser e baixa as imagens.");
+  if (innerWidth <= 860) mtab("stage");
+});
+
+function showProject(anim) {
+  $("#empty").hidden = true; $("#frame").hidden = false;
+  ["#b-save", "#b-one", "#b-all", "#b-share"].forEach(s => $(s).disabled = false);
+  $("#b-share").hidden = !(navigator.canShare && navigator.canShare({ files: [new File([""], "a.png", { type: "image/png" })] }));
+  $("#fmt-pill").textContent = FMT[proj.format].label.split(" ")[0] + " · " + proj.slides.length + (proj.slides.length > 1 ? " slides" : " slide");
+  setGroup("f-bg", proj.bg);
+  drawThumbs(anim); show(cur, anim); editor();
+}
+function refresh() { if (!proj) return; drawThumbs(false); show(cur, false); }
+function show(i, anim) {
+  cur = Math.max(0, Math.min(proj.slides.length - 1, i));
+  const cv = $("#main-cv");
+  const draw = () => { renderSlide(cv, proj, cur, brand, 1, avatarImg); fitCanvas(); cv.classList.remove("swap"); };
+  if (anim) { cv.classList.add("swap"); setTimeout(draw, 160); } else draw();
+  const multi = proj.slides.length > 1;
+  $("#prev").hidden = !multi || cur === 0; $("#next").hidden = !multi || cur === proj.slides.length - 1;
+  $$(".thumb").forEach((t, k) => t.classList.toggle("on", k === cur));
+  const th = $$(".thumb")[cur], tb = $("#thumbs"); if (th) tb.scrollTo({ left: th.offsetLeft - tb.clientWidth / 2 + th.clientWidth / 2, behavior: "smooth" });
+  $("#slide-pill").textContent = "Slide " + (cur + 1) + " de " + proj.slides.length;
+}
+function fitCanvas() {
+  const w = $("#cwrap"), cv = $("#main-cv"); if (!proj || !w.clientWidth) return;
+  const F = FMT[proj.format], pad = 8, s = Math.min((w.clientWidth - pad * 2) / F.w, (w.clientHeight - pad * 2) / F.h);
+  cv.style.width = Math.floor(F.w * s) + "px"; cv.style.height = Math.floor(F.h * s) + "px";
+}
+if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe($("#cwrap")); else addEventListener("resize", fitCanvas);
+function drawThumbs(anim) {
+  const box = $("#thumbs"); box.innerHTML = "";
+  proj.slides.forEach((s, i) => {
+    const b = document.createElement("button"); b.className = "thumb" + (i === cur ? " on" : ""); b.type = "button";
+    if (anim) b.style.animationDelay = (i * 60) + "ms"; else b.style.animation = "none";
+    const cv = document.createElement("canvas"); renderSlide(cv, proj, i, brand, .14, avatarImg);
+    b.appendChild(cv); const n = document.createElement("b"); n.textContent = String(i + 1).padStart(2, "0"); b.appendChild(n);
+    b.addEventListener("click", () => { show(i, true); editor(); });
+    box.appendChild(b);
+  });
+}
+$("#prev").addEventListener("click", () => { show(cur - 1, true); editor(); });
+$("#next").addEventListener("click", () => { show(cur + 1, true); editor(); });
+addEventListener("keydown", e => {
+  if (!proj || $("#v-create").hidden || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowLeft" && cur > 0) { show(cur - 1, true); editor(); }
+  if (e.key === "ArrowRight" && cur < proj.slides.length - 1) { show(cur + 1, true); editor(); }
+});
+
+/* ---------- editor ---------- */
+const TYPE_NAMES = { capa: "Capa / manchete", topico: "Tópico numerado", lista: "Lista", dado: "Dado em destaque", comparacao: "Comparação", texto: "Texto / opinião", pergunta: "Pergunta A ou B", cta: "Chamada final" };
+const FIELDS = {
+  capa: [["kicker", "Rótulo", "i"], ["title", "Título", "t"], ["body", "Subtítulo", "t"]],
+  topico: [["num", "Número", "i"], ["title", "Título", "t"], ["body", "Texto", "t"]],
+  lista: [["kicker", "Rótulo", "i"], ["title", "Título", "t"], ["items", "Itens (um por linha)", "l"]],
+  dado: [["kicker", "Rótulo", "i"], ["num", "Número em destaque", "i"], ["label", "O que o número significa", "t"], ["body", "Comentário", "t"], ["source", "Fonte", "i"]],
+  comparacao: [["title", "Título", "t"], ["leftH", "Lado esquerdo · título", "i"], ["left", "Lado esquerdo · itens", "l"], ["rightH", "Lado direito · título", "i"], ["right", "Lado direito · itens", "l"]],
+  texto: [["kicker", "Rótulo", "i"], ["title", "Título (opcional)", "t"], ["body", "Texto", "t"]],
+  pergunta: [["kicker", "Rótulo", "i"], ["title", "Pergunta", "t"], ["items", "Opções A e B (uma por linha)", "l"], ["body", "Texto de apoio", "t"]],
+  cta: [["title", "Título", "t"], ["body", "Texto", "t"], ["button", "Botão", "i"]]
+};
+let edT = 0;
+function editor() {
+  const ed = $("#editor"); ed.innerHTML = "";
+  if (!proj) return;
+  const s = proj.slides[cur];
+  const sec1 = document.createElement("div"); sec1.className = "ed-sec";
+  if (s._hint) { const w = document.createElement("div"); w.className = "warn"; w.textContent = "⚠ " + s._hint; sec1.appendChild(w); }
+  const typeSel = document.createElement("select"); typeSel.className = "inp";
+  Object.keys(TYPE_NAMES).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = TYPE_NAMES[k]; if (k === s.type) o.selected = true; typeSel.appendChild(o); });
+  typeSel.addEventListener("change", () => { s.type = typeSel.value; if (s.type === "pergunta" && !(s.items || []).length) s.items = ["Opção A", "Opção B"]; if (s.type === "comparacao" && !s.left) { s.left = ["Item"]; s.right = ["Item"]; } refresh(); editor(); });
+  sec1.appendChild(fieldWrap("Layout do slide", typeSel));
+  (FIELDS[s.type] || FIELDS.texto).forEach(([k, lab, kind]) => {
+    let el;
+    if (kind === "i") { el = document.createElement("input"); el.className = "inp"; el.value = s[k] || ""; }
+    else { el = document.createElement("textarea"); el.className = "inp"; el.rows = kind === "l" ? 5 : 3; el.value = kind === "l" ? (s[k] || []).join("\n") : (s[k] || ""); }
+    el.addEventListener("input", () => {
+      s[k] = kind === "l" ? el.value.split("\n").map(x => x.trim()).filter(Boolean) : el.value;
+      if (k === "num" || k === "source") delete s._hint;
+      clearTimeout(edT); edT = setTimeout(() => { show(cur, false); const t = $$(".thumb canvas")[cur]; if (t) renderSlide(t, proj, cur, brand, .14, avatarImg); }, 70);
+    });
+    sec1.appendChild(fieldWrap(lab, el));
+  });
+  const h = document.createElement("div"); h.className = "hint"; h.textContent = "Coloque *entre asteriscos* para destacar uma palavra."; sec1.appendChild(h);
+  ed.appendChild(sec1);
+
+  const sec2 = document.createElement("div"); sec2.className = "ed-sec";
+  const tools = document.createElement("div"); tools.className = "ed-tools";
+  [["i-l", "Mover para trás", () => move(-1)], ["i-r", "Mover para frente", () => move(1)], ["i-dup", "Duplicar", dup], ["i-plus", "Novo slide", add], ["i-trash", "Excluir", del]].forEach(([ic, t, fn]) => {
+    const b = document.createElement("button"); b.className = "btn sm"; b.type = "button"; b.title = t; b.setAttribute("aria-label", t);
+    b.innerHTML = '<svg><use href="#' + ic + '"/></svg>'; b.addEventListener("click", fn); tools.appendChild(b);
+  });
+  sec2.appendChild(fieldWrap("Slide", tools));
+  ed.appendChild(sec2);
+
+  const sec3 = document.createElement("div"); sec3.className = "ed-sec";
+  const cap = document.createElement("textarea"); cap.className = "inp cap"; cap.value = proj.caption || ""; cap.addEventListener("input", () => proj.caption = cap.value);
+  const tg = document.createElement("textarea"); tg.className = "inp tags"; tg.value = proj.tags || ""; tg.addEventListener("input", () => proj.tags = tg.value);
+  const cp = document.createElement("button"); cp.className = "btn full"; cp.type = "button"; cp.innerHTML = '<svg><use href="#i-copy"/></svg>Copiar legenda + hashtags';
+  cp.addEventListener("click", async () => { const t = proj.caption + "\n\n" + proj.tags; try { await navigator.clipboard.writeText(t); toast("Legenda copiada!"); } catch (e) { cap.select(); toast("Selecionei a legenda. Use Ctrl+C.", true); } });
+  sec3.appendChild(fieldWrap("Legenda", cap)); sec3.appendChild(fieldWrap("Hashtags", tg)); sec3.appendChild(cp);
+  ed.appendChild(sec3);
+}
+function fieldWrap(label, el) { const w = document.createElement("label"); w.className = "field"; const s = document.createElement("span"); s.textContent = label; w.appendChild(s); w.appendChild(el); return w; }
+function move(d) { const j = cur + d; if (j < 0 || j >= proj.slides.length) return; const a = proj.slides; [a[cur], a[j]] = [a[j], a[cur]]; cur = j; renumber(); showProject(false); }
+function dup() { proj.slides.splice(cur + 1, 0, JSON.parse(JSON.stringify(proj.slides[cur]))); cur++; renumber(); showProject(false); toast("Slide duplicado"); }
+function add() { if (proj.slides.length >= 10) return toast("O Instagram aceita até 10 slides.", true); proj.slides.splice(cur + 1, 0, { type: "topico", title: "Novo *tópico*", body: "Escreva aqui o texto deste slide." }); cur++; renumber(); showProject(false); }
+function del() { if (proj.slides.length <= 1) return; proj.slides.splice(cur, 1); cur = Math.min(cur, proj.slides.length - 1); renumber(); showProject(false); }
+function renumber() { let n = 0; proj.slides.forEach(s => { if (s.type === "topico") s.num = String(++n).padStart(2, "0"); }); }
+
+/* ---------- exportar ---------- */
+function slug() { return (plain(proj.slides[0].title) || "post").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
+function blobOf(i) { return new Promise(r => { const cv = document.createElement("canvas"); renderSlide(cv, proj, i, brand, 1, avatarImg); cv.toBlob(r, "image/png"); }); }
+function saveBlob(b, name) { if (CL.downloads) { CL.downloads.save({ filename: name, data: b }).catch(e => { if (e && e.code !== "cancelled" && e.code !== "declined") toast("Não consegui salvar o arquivo.", true); }); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+$("#b-one").addEventListener("click", async () => { saveBlob(await blobOf(cur), "vexa-" + slug() + "-" + String(cur + 1).padStart(2, "0") + ".png"); toast("Imagem baixada"); });
+function loadZip() { return window.JSZip ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+$("#b-all").addEventListener("click", async () => {
+  if (proj.slides.length === 1) { saveBlob(await blobOf(0), "vexa-" + slug() + ".png"); toast("Imagem baixada"); return; }
+  try {
+    await run(["Gerando as imagens…", "Compactando…"], async () => {
+      await loadZip();
+      const z = new JSZip();
+      for (let i = 0; i < proj.slides.length; i++) z.file("vexa-" + slug() + "-" + String(i + 1).padStart(2, "0") + ".png", await blobOf(i));
+      z.file("legenda.txt", proj.caption + "\n\n" + proj.tags);
+      saveBlob(await z.generateAsync({ type: "blob" }), "vexa-" + slug() + ".zip");
+    });
+    toast("Pacote baixado com " + proj.slides.length + " imagens e a legenda");
+  } catch (e) {
+    for (let i = 0; i < proj.slides.length; i++) { saveBlob(await blobOf(i), "vexa-" + slug() + "-" + String(i + 1).padStart(2, "0") + ".png"); await new Promise(r => setTimeout(r, 350)); }
+    toast("Imagens baixadas uma a uma");
+  }
+});
+$("#b-share").addEventListener("click", async () => {
+  const files = []; for (let i = 0; i < proj.slides.length; i++) files.push(new File([await blobOf(i)], "vexa-" + (i + 1) + ".png", { type: "image/png" }));
+  try { await navigator.clipboard.writeText(proj.caption + "\n\n" + proj.tags); } catch (e) {}
+  try { await navigator.share({ files, text: proj.caption }); } catch (e) {}
+});
+
+/* ---------- biblioteca ---------- */
+$("#b-save").addEventListener("click", () => {
+  const lib = LS.get("vs-lib", []);
+  const cv = document.createElement("canvas"); renderSlide(cv, proj, 0, brand, .24, avatarImg);
+  const item = { id: proj.id, saved: Date.now(), thumb: cv.toDataURL("image/jpeg", .78), data: JSON.parse(JSON.stringify(proj)) };
+  const i = lib.findIndex(x => x.id === proj.id); if (i >= 0) lib[i] = item; else lib.unshift(item);
+  if (LS.set("vs-lib", lib.slice(0, 80))) { toast("Salvo na Biblioteca"); vexSay("Guardei na Biblioteca. Dá para abrir e editar depois."); }
+});
+function drawLib() {
+  const box = $("#lib"), lib = LS.get("vs-lib", []); box.innerHTML = "";
+  if (!lib.length) { box.innerHTML = '<div class="blank"><div><svg viewBox="0 0 120 150" style="width:90px;height:104px"><use href="#robot"/></svg><p>Nenhum post salvo ainda.<br>Gere um conteúdo e toque em <b>Salvar</b>.</p></div></div>'; return; }
+  lib.forEach((it, i) => {
+    const c = document.createElement("div"); c.className = "card"; c.style.animationDelay = (i * 40) + "ms";
+    const img = document.createElement("img"); img.src = it.thumb; img.alt = "";
+    const t = document.createElement("b"); t.textContent = plain(it.data.slides[0].title);
+    const m = document.createElement("small"); m.textContent = FMT[it.data.format].label.split(" ")[0].toUpperCase() + " · " + new Date(it.saved).toLocaleDateString("pt-BR");
+    const row = document.createElement("div"); row.className = "row";
+    const o = document.createElement("button"); o.className = "btn sm primary"; o.textContent = "Abrir";
+    o.addEventListener("click", () => { proj = JSON.parse(JSON.stringify(it.data)); cur = 0; go("create"); showProject(true); if (innerWidth <= 860) mtab("stage"); });
+    const d = document.createElement("button"); d.className = "btn sm icon"; d.innerHTML = '<svg><use href="#i-trash"/></svg>'; d.setAttribute("aria-label", "Excluir");
+    d.addEventListener("click", () => { const l = LS.get("vs-lib", []).filter(x => x.id !== it.id); LS.set("vs-lib", l); drawLib(); });
+    row.append(o, d); c.append(img, t, m, row); box.appendChild(c);
+  });
+}
+
+/* ---------- marca ---------- */
+const COLORS = ["#1f66ff", "#6c9eff", "#00b4ff", "#7a4dff", "#00c27a", "#ff4d6d", "#ff8a1f", "#111827"];
+function fillBrand() {
+  $("#b-name").value = brand.name; $("#b-handle").value = brand.handle; $("#b-cta").value = brand.cta; $("#b-contact").value = brand.contact; $("#b-tags").value = brand.tags;
+  $("#b-avatar").src = brand.avatar || avatarFallback();
+  const box = $("#b-colors"); box.innerHTML = "";
+  COLORS.forEach(c => { const b = document.createElement("button"); b.className = "sw" + (c === brand.accent ? " on" : ""); b.style.background = c; b.setAttribute("aria-label", "Cor " + c); b.addEventListener("click", () => setAccent(c)); box.appendChild(b); });
+  const ci = document.createElement("input"); ci.type = "color"; ci.value = brand.accent; ci.className = "sw"; ci.style.padding = "0"; ci.title = "Outra cor"; ci.addEventListener("input", () => setAccent(ci.value)); box.appendChild(ci);
+}
+function avatarFallback() { return "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#04060d"/><g transform="translate(18 34) scale(.16)"><path d="M293 2H397L249 238H215L186 170Z" fill="#4c618f"/><path d="M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z" fill="#2a6dff"/></g></svg>'); }
+function saveBrand() { LS.set("vs-brand", brand); drawStylePreviews(); if (proj) refresh(); }
+function setAccent(c) { brand.accent = c; saveBrand(); $$("#b-colors .sw").forEach(b => b.classList.toggle("on", b.style.background && rgbHex(b.style.background) === c)); }
+function rgbHex(s) { const m = s.match(/\d+/g); return m ? "#" + m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("") : s; }
+[["#b-name", "name"], ["#b-handle", "handle"], ["#b-cta", "cta"], ["#b-contact", "contact"], ["#b-tags", "tags"]].forEach(([s, k]) => $(s).addEventListener("input", e => { brand[k] = e.target.value; clearTimeout(edT); edT = setTimeout(saveBrand, 250); }));
+$("#b-file").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image(); img.onload = () => {
+    const cv = document.createElement("canvas"), s = 320; cv.width = cv.height = s; const c = cv.getContext("2d");
+    const r = Math.max(s / img.width, s / img.height); c.drawImage(img, (s - img.width * r) / 2, (s - img.height * r) / 2, img.width * r, img.height * r);
+    brand.avatar = cv.toDataURL("image/jpeg", .88); $("#b-avatar").src = brand.avatar; loadAvatar(); saveBrand(); toast("Foto atualizada");
+  }; img.src = URL.createObjectURL(f);
+});
+$("#b-avatar-reset").addEventListener("click", () => { brand.avatar = null; $("#b-avatar").src = avatarFallback(); loadAvatar(); saveBrand(); });
+
+/* ---------- ajustes ---------- */
+function fillSettings() { $("#s-key").value = LS.get("vs-key", ""); $("#s-model").value = LS.get("vs-model", "claude-sonnet-5-5"); }
+$("#s-key").addEventListener("change", e => { LS.set("vs-key", e.target.value.trim()); syncAI(); if (e.target.value.trim()) toast("Chave salva neste navegador"); });
+$("#s-model").addEventListener("change", e => LS.set("vs-model", e.target.value));
+$("#s-clear").addEventListener("click", () => { LS.del("vs-key"); $("#s-key").value = ""; syncAI(); toast("Chave removida"); });
+$("#s-test").addEventListener("click", async () => {
+  const key = $("#s-key").value.trim(); if (!key) return toast("Cole a chave primeiro.", true);
+  LS.set("vs-key", key); syncAI();
+  try {
+    await run(["Conectando…"], async () => {
+      const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify({ model: $("#s-model").value, max_tokens: 10, messages: [{ role: "user", content: "Responda só: ok" }] }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error((j.error && j.error.message) || r.status); }
+    });
+    toast("Conexão funcionando! Já dá para ligar a IA."); vexSay("Conectei com a Claude. Agora eu escrevo sobre qualquer tema!");
+  } catch (e) { toast("Falhou: " + e.message, true); }
+});
+$("#s-export").addEventListener("click", () => saveBlob(new Blob([JSON.stringify({ brand, lib: LS.get("vs-lib", []) })], { type: "application/json" }), "vex-studio-backup.json"));
+$("#s-import").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (d.brand) { brand = Object.assign({}, DEF_BRAND, d.brand); LS.set("vs-brand", brand); loadAvatar(); fillBrand(); } if (d.lib) LS.set("vs-lib", d.lib); toast("Backup importado"); } catch (err) { toast("Arquivo inválido", true); }
+});
+
+syncCount();
+
+</script>
+</body>
+</html>
