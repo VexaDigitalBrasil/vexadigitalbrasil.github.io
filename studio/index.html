@@ -347,9 +347,17 @@ select.inp option{background:#0a0f20}
                 <button class="chip" data-v="vender">Vender</button>
                 <button class="chip" data-v="autoridade">Autoridade</button>
                 <button class="chip" data-v="engajar">Engajar</button>
+                <button class="chip" data-v="oferta">Oferta com preço</button>
               </div>
             </div>
-            <div class="grp"><div class="lbl">Estilo visual</div>
+            <div class="grp" id="g-variant" hidden><div class="lbl">Modelo da oferta</div>
+              <div class="styles" id="f-variant">
+                <button class="st-card on" data-v="vitrine"><canvas width="240" height="180"></canvas>Vitrine com aparelhos</button>
+                <button class="st-card" data-v="preco"><canvas width="240" height="180"></canvas>Preço em destaque</button>
+                <button class="st-card" data-v="combo"><canvas width="240" height="180"></canvas>Lista do que inclui</button>
+              </div>
+            </div>
+            <div class="grp" id="g-style"><div class="lbl">Estilo visual</div>
               <div class="styles" id="f-style">
                 <button class="st-card on" data-v="manchete"><canvas width="240" height="180"></canvas>Manchete forte</button>
                 <button class="st-card" data-v="lista"><canvas width="240" height="180"></canvas>Lista e passos</button>
@@ -716,6 +724,14 @@ const CAPTION_CTA = {
   vender: "Quer isso no seu negócio? {cta}. 💬",
   autoridade: "Faz sentido para você? {cta} que a gente conversa.",
   engajar: "Comenta aqui: qual é o seu lado? Queremos saber! 👇"
+};
+
+const OFFERS = {
+  site: { title: "Criamos o seu *site*", body: "Sites que *vendem todos os dias* para você.", per: "", pay: "Pagamento único · cartão ou Pix", items: ["Pronto para celular", "Botão direto pro WhatsApp", "Configurado para o Google"] },
+  trafego: { title: "Gestão de *tráfego*", body: "Anúncios que trazem *clientes*, não só curtidas.", per: "/mês", pay: "Cartão ou Pix", items: ["Google e Instagram", "Otimização toda semana", "Relatório mensal"] },
+  automacao: { title: "WhatsApp no *automático*", body: "Atendimento rápido *a qualquer hora*.", per: "", pay: "Cartão ou Pix", items: ["Boas-vindas automáticas", "Agendamento sem esforço", "Funil com etiquetas"] },
+  social: { title: "Instagram *profissional*", body: "Conteúdo que *atrai e vende* todo mês.", per: "/mês", pay: "Cartão ou Pix", items: ["Planejamento mensal", "Design da sua marca", "Textos que convertem"] },
+  negocio: { title: "Seu digital *completo*", body: "Site, anúncios, automação e redes *com um só time*.", per: "/mês", pay: "Cartão ou Pix", items: ["Um só time", "Tudo conectado", "Relatórios simples"] }
 };
 
 const IDEAS = [
@@ -1114,6 +1130,272 @@ function renderSlide(cv, proj, idx, brand, scale, avatar) {
 }
 
 /* =========================================================
+   Artes de oferta (preço) · 3 modelos
+   ========================================================= */
+const IMG_CACHE = {};
+function cachedImg(src) {
+  if (!src) return null;
+  let im = IMG_CACHE[src];
+  if (!im) { im = new Image(); im.onload = () => { if (typeof refresh === "function" && typeof proj !== "undefined" && proj) refresh(); }; im.src = src; IMG_CACHE[src] = im; }
+  return im.complete && im.naturalWidth ? im : null;
+}
+function splitHeadline(t) {
+  const m = String(t || "").match(/^([\s\S]*?)\*([^*]+)\*([\s\S]*)$/);
+  if (!m) return { small: "", big: plain(t) };
+  return { small: (m[1] + " " + m[3]).replace(/\s+/g, " ").trim(), big: m[2].trim() };
+}
+function glass(ctx, x, y, w, h, r, P, strong) {
+  ctx.save();
+  const light = P.mode === "claro";
+  ctx.fillStyle = light ? "rgba(255,255,255,.85)" : (P.mode === "azul" ? "rgba(255,255,255,.12)" : "rgba(14,22,48,.72)");
+  if (light) { ctx.shadowColor = "rgba(20,40,90,.18)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14; }
+  roundRect(ctx, x, y, w, h, r); ctx.fill(); ctx.restore();
+  const g = ctx.createLinearGradient(x, y, x + w, y + h);
+  const c1 = P.mode === "azul" ? "rgba(255,255,255,.7)" : rgba(P.acc, strong ? .95 : .7);
+  g.addColorStop(0, c1); g.addColorStop(.45, P.mode === "claro" ? "rgba(20,40,90,.08)" : "rgba(140,170,255,.08)"); g.addColorStop(1, P.mode === "azul" ? "rgba(255,255,255,.35)" : rgba(P.acc, .45));
+  ctx.strokeStyle = g; ctx.lineWidth = 2.5; roundRect(ctx, x + 1, y + 1, w - 2, h - 2, r); ctx.stroke();
+}
+function giantWord(ctx, text, x, y, maxW, maxS, P, align) {
+  const f = fitText(ctx, text, "d", 900, maxW, maxS * 1.1, maxS, 80, .9, 1);
+  setFont(ctx, "d", f.size, 900);
+  const w = ctx.measureText(text).width, tx = align === "center" ? x + (maxW - w) / 2 : x, by = y + f.size * .8;
+  const g = ctx.createLinearGradient(0, y, 0, y + f.size * .85);
+  if (P.mode === "claro") { g.addColorStop(0, "#0b1020"); g.addColorStop(1, P.acc); }
+  else { g.addColorStop(0, "#ffffff"); g.addColorStop(.55, P.mode === "azul" ? "#ffffff" : mix(P.acc, "#ffffff", .7)); g.addColorStop(1, P.mode === "azul" ? "#cfe0ff" : P.acc); }
+  ctx.save();
+  ctx.shadowColor = P.mode === "claro" ? rgba(P.acc, .25) : rgba(P.mode === "azul" ? "#ffffff" : P.acc, .55); ctx.shadowBlur = 50;
+  ctx.fillStyle = g; ctx.textBaseline = "alphabetic"; ctx.fillText(text, tx, by);
+  ctx.restore();
+  return f.size * .86;
+}
+function priceParts(s) {
+  const raw = String(s.price || "").replace(/^R\$\s*/i, "").trim();
+  const [int, cents] = (raw || "000").split(/[,.](?=\d{1,2}$)/);
+  return { int: int || "000", cents: cents ? "," + cents : "", empty: !raw };
+}
+/* bloco de preço: devolve altura usada */
+function priceBlock(ctx, s, x, y, w, P, align, big) {
+  const pp = priceParts(s), center = align === "center";
+  let cy = y;
+  const hi = P.mode === "azul" ? "#ffffff" : P.hl;
+  if (s.old) {
+    setFont(ctx, "b", 32, 600); ctx.fillStyle = P.muted; ctx.textBaseline = "alphabetic";
+    const t = "De " + (/R\$/.test(s.old) ? s.old : "R$ " + s.old), tw = ctx.measureText(t).width, tx = center ? x + (w - tw) / 2 : x;
+    ctx.fillText(t, tx, cy + 30);
+    ctx.strokeStyle = P.bad; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(tx - 4, cy + 20); ctx.lineTo(tx + tw + 4, cy + 18); ctx.stroke();
+    cy += 50;
+  }
+  if (s.prefix) {
+    setFont(ctx, "m", 28, 700); ctx.fillStyle = hi; ctx.textBaseline = "alphabetic";
+    const t = plain(s.prefix).toUpperCase(), tw = ctx.measureText(t).width;
+    ctx.fillText(t, center ? x + (w - tw) / 2 : x + 4, cy + 28); cy += 44;
+  }
+  const maxNum = big || 200;
+  setFont(ctx, "d", 64, 800); const rs = ctx.measureText("R$").width;
+  let ns = maxNum; setFont(ctx, "d", ns, 900);
+  const tail = (s.per ? 0 : 0);
+  while (ns > 80) { setFont(ctx, "d", ns, 900); const nw = ctx.measureText(pp.int).width; setFont(ctx, "d", ns * .32, 800); const cw = Math.max(ctx.measureText(pp.cents).width, s.per ? ctx.measureText(s.per).width : 0); if (rs + 16 + nw + 12 + cw <= w) break; ns -= 6; }
+  setFont(ctx, "d", ns, 900); const nw = ctx.measureText(pp.int).width;
+  setFont(ctx, "d", ns * .32, 800); const cw = Math.max(ctx.measureText(pp.cents).width, s.per ? ctx.measureText(s.per).width : 0);
+  const total = rs + 16 + nw + 12 + cw, px = center ? x + (w - total) / 2 : x, base = cy + ns * .78;
+  setFont(ctx, "d", 64, 800); ctx.fillStyle = P.fg; ctx.textBaseline = "alphabetic"; ctx.fillText("R$", px, cy + 64 + ns * .08);
+  setFont(ctx, "d", ns, 900);
+  const g = ctx.createLinearGradient(0, cy, 0, base);
+  if (P.mode === "claro") { g.addColorStop(0, "#0b1020"); g.addColorStop(1, P.acc); } else { g.addColorStop(0, "#ffffff"); g.addColorStop(1, P.mode === "azul" ? "#d6e6ff" : mix(P.acc, "#ffffff", .45)); }
+  ctx.save(); ctx.shadowColor = P.mode === "claro" ? "rgba(0,0,0,0)" : rgba(P.mode === "azul" ? "#000000" : P.acc, .45); ctx.shadowBlur = 40;
+  ctx.fillStyle = g; ctx.fillText(pp.int, px + rs + 16, base); ctx.restore();
+  setFont(ctx, "d", ns * .32, 800); ctx.fillStyle = P.fg;
+  if (pp.cents) ctx.fillText(pp.cents, px + rs + 16 + nw + 12, cy + ns * .32 + ns * .06);
+  if (s.per) { ctx.fillStyle = P.muted; ctx.fillText(s.per, px + rs + 16 + nw + 12, base); }
+  cy = base + 26;
+  if (s.parc) { setFont(ctx, "b", 34, 600); ctx.fillStyle = P.muted; const t = plain(s.parc), tw = ctx.measureText(t).width; ctx.fillText(t, center ? x + (w - tw) / 2 : x + 4, cy + 30); cy += 52; }
+  if (s.pay) {
+    const t = plain(s.pay).toUpperCase(); let fs = 22; setFont(ctx, "m", fs, 600);
+    while (ctx.measureText(t).width + 86 > w && fs > 17) { fs -= 1; setFont(ctx, "m", fs, 600); }
+    if (ctx.measureText(t).width + 86 > w) {
+      const f = fitText(ctx, plain(s.pay), "b", 600, w - 8, 80, 26, 20, 1.25, 2);
+      drawFit(ctx, f, x + 4, cy + 10, w - 8, P, { color: P.muted, align: center ? "center" : "left" });
+      return cy + 10 + f.h + 8 - y;
+    }
+    const tw = ctx.measureText(t).width, bw = tw + 86, bx = center ? x + (w - bw) / 2 : x;
+    ctx.fillStyle = P.mode === "azul" ? "rgba(255,255,255,.14)" : rgba(P.acc, .12); roundRect(ctx, bx, cy + 6, bw, 50, 25); ctx.fill();
+    ctx.strokeStyle = P.mode === "azul" ? "rgba(255,255,255,.5)" : rgba(P.acc, .55); ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = hi; ctx.lineWidth = 2.4; roundRect(ctx, bx + 20, cy + 20, 32, 22, 4); ctx.stroke(); ctx.beginPath(); ctx.moveTo(bx + 20, cy + 27); ctx.lineTo(bx + 52, cy + 27); ctx.stroke();
+    ctx.fillStyle = hi; ctx.textBaseline = "middle"; ctx.fillText(t, bx + 66, cy + 32);
+    cy += 66;
+  }
+  return cy - y;
+}
+function fakeSite(ctx, x, y, w, h, P, mobile) {
+  ctx.save(); roundRect(ctx, x, y, w, h, mobile ? w * .08 : 6); ctx.clip();
+  let g = ctx.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, "#071027"); g.addColorStop(1, "#03050b");
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+  g = ctx.createRadialGradient(x + w * .8, y + h * .2, 0, x + w * .8, y + h * .2, w * .7); g.addColorStop(0, rgba(P.mode === "azul" ? P.bg : P.acc, .45)); g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+  const u = w / 100, acc = P.mode === "azul" ? P.bg : P.acc;
+  const pp = palette("escuro", acc);
+  drawV(ctx, x + 4 * u, y + (mobile ? 6 : 3.5) * u, (mobile ? 12 : 6) * u, pp, 1);
+  ctx.fillStyle = "rgba(255,255,255,.6)";
+  if (!mobile) { for (let i = 0; i < 4; i++) { roundRect(ctx, x + (52 + i * 8) * u, y + 4.2 * u, 6 * u, 1.2 * u, .6 * u); ctx.fill(); } ctx.fillStyle = acc; roundRect(ctx, x + 86 * u, y + 3.2 * u, 10 * u, 3.4 * u, 1.7 * u); ctx.fill(); }
+  else { for (let i = 0; i < 3; i++) { roundRect(ctx, x + 80 * u, y + (6 + i * 3) * u, 12 * u, 1.4 * u, .7 * u); ctx.fill(); } }
+  const tx = x + (mobile ? 7 : 6) * u, ty = y + (mobile ? 26 : 18) * u, lw = mobile ? 86 : 44;
+  ctx.fillStyle = acc; roundRect(ctx, tx, ty, lw * .4 * u, (mobile ? 2.2 : 1.4) * u, u); ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  [1, .82].forEach((k, i) => { roundRect(ctx, tx, ty + (mobile ? 6 + i * 8 : 4 + i * 5.2) * u, lw * k * u, (mobile ? 5.5 : 3.6) * u, u); ctx.fill(); });
+  ctx.fillStyle = mix(acc, "#ffffff", .35); roundRect(ctx, tx, ty + (mobile ? 22 : 14.6) * u, lw * .6 * u, (mobile ? 5.5 : 3.6) * u, u); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.35)";
+  [.95, .8].forEach((k, i) => { roundRect(ctx, tx, ty + (mobile ? 32 + i * 4 : 21 + i * 2.6) * u, lw * k * u, (mobile ? 1.6 : 1.1) * u, u); ctx.fill(); });
+  ctx.fillStyle = acc; roundRect(ctx, tx, ty + (mobile ? 42 : 28) * u, (mobile ? 40 : 16) * u, (mobile ? 8 : 4.6) * u, (mobile ? 4 : 2.3) * u); ctx.fill();
+  const vx = mobile ? x + 20 * u : x + 58 * u, vy = mobile ? y + h - 70 * u : y + 16 * u, vw = mobile ? 60 * u : 36 * u;
+  ctx.save(); ctx.shadowColor = rgba(acc, .9); ctx.shadowBlur = 30; drawV(ctx, vx, vy, vw, pp, 1); ctx.restore();
+  ctx.fillStyle = "rgba(156,194,255,.6)";
+  for (let i = 0; i < 26; i++) { const a = i * 2.4, r = (vw * .55) * (.5 + (i % 5) / 8); ctx.fillRect(vx + vw / 2 + Math.cos(a) * r, vy + vw * .3 + Math.sin(a) * r * .6, 2, 2); }
+  ctx.restore();
+}
+function screenImg(ctx, im, x, y, w, h, r) {
+  ctx.save(); roundRect(ctx, x, y, w, h, r); ctx.clip();
+  const k = Math.max(w / im.naturalWidth, h / im.naturalHeight);
+  ctx.drawImage(im, x + (w - im.naturalWidth * k) / 2, y, im.naturalWidth * k, im.naturalHeight * k);
+  ctx.restore();
+}
+function devices(ctx, x, y, w, P, shot) {
+  const im = cachedImg(shot);
+  const lw = w * .84, sw = lw * .86, sh = sw * .62, sx = x + (lw - sw) / 2, sy = y;
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 50; ctx.shadowOffsetY = 26;
+  ctx.fillStyle = "#0a0d16"; roundRect(ctx, sx - lw * .028, sy - lw * .028, sw + lw * .056, sh + lw * .05, lw * .03); ctx.fill(); ctx.restore();
+  ctx.strokeStyle = "rgba(160,180,220,.35)"; ctx.lineWidth = 2; roundRect(ctx, sx - lw * .028, sy - lw * .028, sw + lw * .056, sh + lw * .05, lw * .03); ctx.stroke();
+  if (im) screenImg(ctx, im, sx, sy, sw, sh, 6); else fakeSite(ctx, sx, sy, sw, sh, P, false);
+  const by = sy + sh + lw * .022;
+  const g = ctx.createLinearGradient(0, by, 0, by + lw * .05); g.addColorStop(0, "#d9dee8"); g.addColorStop(1, "#7d8597");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - lw * .02, by); ctx.lineTo(x + lw * 1.02, by); ctx.lineTo(x + lw * .97, by + lw * .045); ctx.lineTo(x + lw * .03, by + lw * .045); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(0,0,0,.25)"; roundRect(ctx, x + lw * .42, by, lw * .16, lw * .012, 4); ctx.fill();
+  const pw = w * .25, ph = pw * 2.05, px = x + w - pw, py = by + lw * .045 - ph + pw * .1;
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.65)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20;
+  ctx.fillStyle = "#0a0d16"; roundRect(ctx, px, py, pw, ph, pw * .16); ctx.fill(); ctx.restore();
+  ctx.strokeStyle = "rgba(170,190,230,.5)"; ctx.lineWidth = 2.5; roundRect(ctx, px, py, pw, ph, pw * .16); ctx.stroke();
+  const ix = px + pw * .055, iy = py + pw * .055, iw = pw * .89, ih = ph - pw * .11;
+  if (im) screenImg(ctx, im, ix, iy, iw, ih, pw * .12); else fakeSite(ctx, ix, iy, iw, ih, P, true);
+  ctx.fillStyle = "#0a0d16"; roundRect(ctx, px + pw * .36, py + pw * .07, pw * .28, pw * .07, pw * .035); ctx.fill();
+  return by + lw * .045 - y;
+}
+function benefitRow(ctx, items, x, y, w, P, h) {
+  items = items.filter(Boolean).slice(0, 3); if (!items.length) return 0;
+  const gap = 16, cw = (w - gap * (items.length - 1)) / items.length, ch = h || 120;
+  items.forEach((t, i) => {
+    const cx = x + i * (cw + gap);
+    glass(ctx, cx, y, cw, ch, 24, P);
+    const col = P.mode === "azul" ? "#fff" : P.acc;
+    ctx.fillStyle = rgba(P.mode === "azul" ? "#ffffff" : P.acc, .16); ctx.beginPath(); ctx.arc(cx + 42, y + ch / 2, 22, 0, Math.PI * 2); ctx.fill();
+    drawCheck(ctx, cx + 42, y + ch / 2 + 1, 26, col);
+    const f = fitText(ctx, t, "b", 650, cw - 86, ch - 24, 30, 20, 1.15, 3);
+    drawFit(ctx, f, cx + 74, y + (ch - f.h) / 2, cw - 86, P);
+  });
+  return ch;
+}
+function ctaPill(ctx, label, cx, y, maxW, P, proj) {
+  label = plain(label || "Chama no WhatsApp");
+  setFont(ctx, "d", 38, 800);
+  const tw = ctx.measureText(label).width, bw = Math.min(maxW, tw + 190), bh = 96, bx = cx - bw / 2;
+  ctx.save(); ctx.shadowColor = rgba(P.mode === "azul" ? "#000000" : P.acc, .65); ctx.shadowBlur = 44; ctx.shadowOffsetY = 12;
+  let g; if (P.mode === "azul") { ctx.fillStyle = "#ffffff"; } else { g = ctx.createLinearGradient(bx, y, bx, y + bh); g.addColorStop(0, mix(P.acc, "#ffffff", .2)); g.addColorStop(1, P.acc); ctx.fillStyle = g; }
+  roundRect(ctx, bx, y, bw, bh, bh / 2); ctx.fill(); ctx.restore();
+  const fg = P.mode === "azul" ? (proj._accent || "#1f66ff") : "#ffffff";
+  const ix = bx + 54, iy = y + bh / 2;
+  ctx.strokeStyle = fg; ctx.lineWidth = 3.4; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.arc(ix, iy - 1, 17, Math.PI * .75, Math.PI * 2.55); ctx.lineTo(ix - 18, iy + 17); ctx.closePath(); ctx.stroke();
+  ctx.fillStyle = fg; ctx.textBaseline = "middle"; setFont(ctx, "d", 38, 800);
+  ctx.fillText(label, ix + 34, iy + 2);
+  const ax = bx + bw - 52; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(ax - 18, iy); ctx.lineTo(ax + 6, iy); ctx.moveTo(ax - 6, iy - 12); ctx.lineTo(ax + 6, iy); ctx.lineTo(ax - 6, iy + 12); ctx.stroke();
+  return bh;
+}
+function perspectiveFloor(ctx, W, H, y0, P) {
+  if (P.mode === "claro") return;
+  ctx.save(); ctx.globalAlpha = P.mode === "azul" ? .25 : .5;
+  const cx = W / 2, col = P.mode === "azul" ? "rgba(255,255,255,.35)" : rgba(P.acc, .35);
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+  for (let i = -10; i <= 10; i++) { ctx.beginPath(); ctx.moveTo(cx + i * 30, y0); ctx.lineTo(cx + i * 260, H); ctx.stroke(); }
+  for (let k = 0; k < 9; k++) { const t = Math.pow(k / 8, 1.8), yy = y0 + (H - y0) * t; ctx.globalAlpha = (P.mode === "azul" ? .25 : .5) * (.3 + t); ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(W, yy); ctx.stroke(); }
+  ctx.restore();
+  const g = ctx.createLinearGradient(0, y0 - 40, 0, y0 + 160); g.addColorStop(0, P.mode === "azul" ? "rgba(255,255,255,0)" : rgba(P.bg, 1)); g.addColorStop(1, "rgba(0,0,0,0)");
+}
+
+L.oferta = (ctx, s, A, P, W, H, proj, idx, brand) => {
+  const story = proj.format === "stories", v = s.variant || "vitrine";
+  const items = (s.items || []).filter(Boolean);
+  perspectiveFloor(ctx, W, H, story ? H * .62 : H * .6, P);
+  let y = story ? 280 : 170;
+  if (s.kicker) { kicker(ctx, s.kicker, A.x, y, P); y += story ? 92 : 80; }
+
+  if (v === "vitrine") {
+    const hd = splitHeadline(s.title);
+    if (hd.small) { const f = fitText(ctx, hd.small.toUpperCase(), "d", 850, A.w, story ? 170 : 150, story ? 84 : 76, 40, 1, 2); y += drawFit(ctx, f, A.x, y, A.w, P); }
+    y += giantWord(ctx, hd.big.toUpperCase(), A.x - 6, y - 6, A.w + 12, story ? 250 : 230, P) + 8;
+    if (s.body) { const f = fitText(ctx, s.body, "b", 600, A.w, 120, story ? 46 : 40, 28, 1.25, 2); y += drawFit(ctx, f, A.x, y, A.w, P, { color: P.fg }) + (story ? 40 : 30); }
+    const ctaY = story ? H - 330 : 1205, benY = ctaY - 40 - (story ? 120 : 112);
+    const cw = story ? 440 : 400, tmp = document.createElement("canvas").getContext("2d");
+    const ph = priceBlock(tmp, s, 0, 0, cw - 64, P, "left", story ? 170 : 160);
+    const rowH0 = Math.max(ph + 56, 300), space = benY - 36 - y;
+    const dw = Math.min(A.w - cw - 30, Math.max(220, space) / .53);
+    const rowH = Math.max(rowH0, dw * .53), rowY = y + Math.max(0, (space - rowH) / 2);
+    glass(ctx, A.x, rowY + (rowH - rowH0) / 2, cw, rowH0, 34, P, true);
+    priceBlock(ctx, s, A.x + 32, rowY + (rowH - rowH0) / 2 + 28, cw - 64, P, "left", story ? 170 : 160);
+    devices(ctx, A.x + cw + 30 + (A.w - cw - 30 - dw) / 2, rowY + (rowH - dw * .53) / 2, dw, P, s.shot);
+    benefitRow(ctx, items, A.x, benY, A.w, P, story ? 120 : 112);
+    ctaPill(ctx, s.button, W / 2, ctaY, story ? A.w : 760, P, proj);
+  } else if (v === "preco") {
+    const tf = fitText(ctx, s.title, "d", 850, A.w, story ? 330 : 230, story ? 110 : 92, 50, 1.02);
+    y += drawFit(ctx, tf, A.x, y, A.w, P, { align: "center" }) + 12;
+    if (s.body) { const f = fitText(ctx, s.body, "b", 500, A.w, 110, 40, 26, 1.25, 2); y += drawFit(ctx, f, A.x, y, A.w, P, { align: "center", color: P.muted }); }
+    const cx = W / 2, R = story ? 330 : 270, cy = y + R + (story ? 60 : 40);
+    let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.4);
+    g.addColorStop(0, rgba(P.mode === "azul" ? "#ffffff" : P.acc, P.mode === "claro" ? .14 : .32)); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = P.mode === "claro" ? "rgba(255,255,255,.9)" : (P.mode === "azul" ? "rgba(255,255,255,.1)" : "rgba(10,16,36,.85)");
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+    g = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R); g.addColorStop(0, P.mode === "azul" ? "#ffffff" : mix(P.acc, "#ffffff", .4)); g.addColorStop(.5, "rgba(140,170,255,.1)"); g.addColorStop(1, P.mode === "azul" ? "rgba(255,255,255,.6)" : P.acc);
+    ctx.strokeStyle = g; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, cy, R - 3, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = P.mode === "azul" ? "rgba(255,255,255,.25)" : rgba(P.acc, .3); ctx.lineWidth = 2; ctx.setLineDash([4, 14]); ctx.beginPath(); ctx.arc(cx, cy, R + 26, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    const tmp = document.createElement("canvas").getContext("2d");
+    const ph = priceBlock(tmp, s, 0, 0, R * 1.6, P, "center", story ? 210 : 180);
+    priceBlock(ctx, s, cx - R * .8, cy - ph / 2, R * 1.6, P, "center", story ? 210 : 180);
+    y = cy + R + (story ? 70 : 50);
+    if (story) {
+      const list = items.slice(0, 4);
+      list.forEach((t, i) => { const col = P.mode === "azul" ? "#fff" : P.acc; drawCheck(ctx, A.x + 40, y + 30, 30, col); const f = fitText(ctx, t, "b", 600, A.w - 90, 60, 40, 26, 1.1, 1); drawFit(ctx, f, A.x + 84, y + 8, A.w - 90, P); y += 70; });
+      ctaPill(ctx, s.button, W / 2, H - 330, A.w, P, proj);
+    } else {
+      benefitRow(ctx, items, A.x, Math.min(y, 1070), A.w, P, 112);
+      ctaPill(ctx, s.button, W / 2, 1205, 760, P, proj);
+    }
+  } else {
+    const tf = fitText(ctx, s.title, "d", 850, A.w, story ? 330 : 220, story ? 110 : 90, 48, 1.02);
+    y += drawFit(ctx, tf, A.x, y, A.w, P) + 34;
+    const bottomCta = story ? H - 330 : 1205;
+    const ch = bottomCta - 40 - y, cx = A.x;
+    glass(ctx, cx, y, A.w, ch, 36, P, true);
+    setFont(ctx, "m", 24, 700); ctx.fillStyle = P.mode === "azul" ? "#fff" : P.hl; ctx.textBaseline = "alphabetic"; ctx.fillText("O QUE ESTÁ INCLUSO", cx + 46, y + 66);
+    const tmp0 = document.createElement("canvas").getContext("2d");
+    const priceH = priceBlock(tmp0, s, 0, 0, A.w - 80, P, "center", story ? 190 : 150) + 50, listH = ch - 110 - priceH;
+    const list = items.slice(0, 7), rowH = Math.min(84, listH / Math.max(1, list.length));
+    let ly = y + 100;
+    list.forEach(t => {
+      const col = P.mode === "azul" ? "#fff" : P.acc;
+      ctx.fillStyle = rgba(P.mode === "azul" ? "#ffffff" : P.acc, .16); ctx.beginPath(); ctx.arc(cx + 70, ly + rowH / 2, 24, 0, Math.PI * 2); ctx.fill();
+      drawCheck(ctx, cx + 70, ly + rowH / 2 + 1, 28, col);
+      const f = fitText(ctx, t, "b", 600, A.w - 170, rowH, 40, 24, 1.1, 2);
+      drawFit(ctx, f, cx + 116, ly + (rowH - f.h) / 2, A.w - 170, P);
+      ly += rowH;
+    });
+    const sepY = y + ch - priceH;
+    ctx.strokeStyle = P.mode === "claro" ? "rgba(20,40,90,.12)" : "rgba(140,170,255,.18)"; ctx.setLineDash([8, 10]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + 40, sepY); ctx.lineTo(cx + A.w - 40, sepY); ctx.stroke(); ctx.setLineDash([]);
+    const tmp = document.createElement("canvas").getContext("2d");
+    const ph = priceBlock(tmp, s, 0, 0, A.w - 80, P, "center", story ? 190 : 150);
+    priceBlock(ctx, s, cx + 40, sepY + (priceH - ph) / 2, A.w - 80, P, "center", story ? 190 : 150);
+    ctaPill(ctx, s.button, W / 2, bottomCta, 760, P, proj);
+  }
+};
+
+/* =========================================================
    Motor de geração: modelos prontos + IA (Claude)
    ========================================================= */
 const rint = n => Math.floor(Math.random() * n);
@@ -1134,7 +1416,18 @@ function themeTitle(t) {
   return "*" + t + "*";
 }
 
+function generateOffer(b, brand) {
+  const T = TOPICS[b.topic] || TOPICS.site, O = OFFERS[b.topic] || OFFERS.site;
+  const offer = { type: "oferta", variant: b.variant || "vitrine", kicker: "Oferta Vexa", title: b.theme ? themeTitle(b.theme) : O.title, body: O.body, prefix: "Apenas", price: "", per: O.per, old: "", parc: "", pay: O.pay, items: O.items.slice(), button: "Chama no WhatsApp", _hint: "Coloque o preço e confira as condições antes de postar." };
+  if (offer.variant === "combo") offer.items = T.benefits.slice(0, b.format === "stories" ? 5 : 4);
+  let slides = [offer];
+  if (b.format === "carrossel") slides = [offer, { type: "lista", kicker: T.label, title: "O que está *incluso*", items: T.benefits.slice() }, { type: "cta", title: "Garanta a sua *vaga*", body: "Chama no WhatsApp e tire suas dúvidas com o time da Vexa.", button: "Chama no WhatsApp" }];
+  const caption = [plain(offer.title) + " · " + plain(offer.body), "", offer.items.map(i => "✅ " + i).join("\n"), "", "💬 Chama no WhatsApp e garanta a sua."].join("\n");
+  const tags = T.tags.concat(["#oferta", "#marketingdigital"]).concat((brand.tags || "").split(/\s+/).filter(t => /^#/.test(t)));
+  return { slides, caption, tags: Array.from(new Set(tags)).join(" ") };
+}
 function generateTemplate(b, brand) {
+  if (b.goal === "oferta") return generateOffer(b, brand);
   const T = TOPICS[b.topic] || TOPICS.site;
   const isCar = b.format === "carrossel", isStory = b.format === "stories";
   const N = b.format === "post" ? 1 : b.count;
@@ -1274,7 +1567,7 @@ let avatarImg = null;
 function loadAvatar() { avatarImg = null; if (brand.avatar) { avatarImg = new Image(); avatarImg.onload = () => { if (proj) refresh(); }; avatarImg.src = brand.avatar; } }
 loadAvatar();
 
-const brief = { format: "carrossel", goal: "ensinar", style: "manchete", topic: "site", aud: "geral", theme: "", count: 7, bg: "escuro", ai: false };
+const brief = { format: "carrossel", goal: "ensinar", style: "manchete", topic: "site", aud: "geral", theme: "", count: 7, bg: "escuro", ai: false, variant: "vitrine" };
 let proj = null, cur = 0;
 const CL = { sample: null, downloads: null };
 if (window.claude && typeof window.claude.use === "function") {
@@ -1355,7 +1648,14 @@ function bindGroup(id, key, after) {
 }
 function setGroup(id, v) { $$("#" + id + " [data-v]").forEach(x => x.classList.toggle("on", x.dataset.v === v)); }
 bindGroup("f-format", "format", syncCount);
-bindGroup("f-goal", "goal");
+bindGroup("f-goal", "goal", syncGoal);
+bindGroup("f-variant", "variant");
+function syncGoal() {
+  const off = brief.goal === "oferta";
+  $("#g-variant").hidden = !off; $("#g-style").hidden = off;
+  syncCount();
+  if (off) { drawVariantPreviews(); vexSay("Modo oferta! Depois de gerar, coloca o preço e as condições no painel de texto."); }
+}
 bindGroup("f-style", "style");
 bindGroup("f-topic", "topic");
 bindGroup("f-bg", "bg", () => { drawStylePreviews(); if (proj) { proj.bg = brief.bg; refresh(); } });
@@ -1364,7 +1664,7 @@ $("#f-theme").addEventListener("input", e => brief.theme = e.target.value.trim()
 $("#f-count").addEventListener("input", e => { brief.count = +e.target.value; $("#count-out").textContent = brief.count; });
 function syncCount() {
   const r = $("#f-count"), g = $("#g-count");
-  g.hidden = brief.format === "post";
+  g.hidden = brief.format === "post" || brief.goal === "oferta";
   if (brief.format === "stories") { r.min = 1; r.max = 5; if (brief.count > 5) brief.count = 3; }
   else { r.min = 3; r.max = 10; if (brief.count < 3) brief.count = 7; }
   r.value = brief.count; $("#count-out").textContent = brief.count;
@@ -1385,6 +1685,17 @@ $("#surprise").addEventListener("click", () => {
   vexSay("Sorteei um briefing. Gostou? É só gerar!");
 });
 
+/* prévias dos modelos de oferta */
+function drawVariantPreviews() {
+  $$("#f-variant .st-card").forEach(c => {
+    const k = c.dataset.v, cv = c.querySelector("canvas");
+    const O = OFFERS.site;
+    const p = { format: "post", style: "x", bg: brief.bg, slides: [{ type: "oferta", variant: k, kicker: "Oferta", title: O.title, body: "", prefix: "Apenas", price: "497", pay: "", items: O.items }] };
+    const off = document.createElement("canvas"); renderSlide(off, p, 0, brand, .3, avatarImg);
+    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, 240, 180);
+    ctx.drawImage(off, 0, off.height * .1, off.width, off.width * .75, 0, 0, 240, 180);
+  });
+}
 /* prévias dos estilos */
 function drawStylePreviews() {
   const sample = {
@@ -1414,7 +1725,7 @@ $("#gen").addEventListener("click", async () => {
   const b = Object.assign({}, brief);
   let out;
   try {
-    if (b.ai) {
+    if (b.ai && b.goal !== "oferta") {
       out = await run(["Lendo o briefing…", "Pensando no gancho…", "Escrevendo os slides…", "Revisando o texto…", "Quase lá…"], () => LS.get("vs-key", "") ? generateAI(b, brand, LS.get("vs-key", ""), LS.get("vs-model", "claude-sonnet-5-5")) : generateSample(b, brand, CL.sample));
     } else {
       out = await run(["Escolhendo o gancho…", "Montando os slides…", "Aplicando a identidade…"], () => new Promise(r => setTimeout(() => r(generateTemplate(b, brand)), 1500)));
@@ -1473,8 +1784,9 @@ addEventListener("keydown", e => {
 });
 
 /* ---------- editor ---------- */
-const TYPE_NAMES = { capa: "Capa / manchete", topico: "Tópico numerado", lista: "Lista", dado: "Dado em destaque", comparacao: "Comparação", texto: "Texto / opinião", pergunta: "Pergunta A ou B", cta: "Chamada final" };
+const TYPE_NAMES = { oferta: "Oferta com preço", capa: "Capa / manchete", topico: "Tópico numerado", lista: "Lista", dado: "Dado em destaque", comparacao: "Comparação", texto: "Texto / opinião", pergunta: "Pergunta A ou B", cta: "Chamada final" };
 const FIELDS = {
+  oferta: [["variant", "Modelo", "sel", { vitrine: "Vitrine com aparelhos", preco: "Preço em destaque", combo: "Lista do que inclui" }], ["kicker", "Selo", "i"], ["title", "Título (a *palavra* entre asteriscos fica gigante)", "t"], ["body", "Subtítulo", "t"], ["prefix", "Antes do preço", "i"], ["price", "Preço (ex.: 497 ou 497,90)", "i"], ["per", "Depois do preço (ex.: /mês)", "i"], ["old", "Preço antigo riscado (opcional)", "i"], ["parc", "Parcelas (opcional, ex.: ou 3x de R$ 166)", "i"], ["pay", "Condição de pagamento", "i"], ["items", "Benefícios (um por linha)", "l"], ["button", "Botão", "i"], ["shot", "Print do site na tela (opcional)", "img"]],
   capa: [["kicker", "Rótulo", "i"], ["title", "Título", "t"], ["body", "Subtítulo", "t"]],
   topico: [["num", "Número", "i"], ["title", "Título", "t"], ["body", "Texto", "t"]],
   lista: [["kicker", "Rótulo", "i"], ["title", "Título", "t"], ["items", "Itens (um por linha)", "l"]],
@@ -1495,13 +1807,28 @@ function editor() {
   Object.keys(TYPE_NAMES).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = TYPE_NAMES[k]; if (k === s.type) o.selected = true; typeSel.appendChild(o); });
   typeSel.addEventListener("change", () => { s.type = typeSel.value; if (s.type === "pergunta" && !(s.items || []).length) s.items = ["Opção A", "Opção B"]; if (s.type === "comparacao" && !s.left) { s.left = ["Item"]; s.right = ["Item"]; } refresh(); editor(); });
   sec1.appendChild(fieldWrap("Layout do slide", typeSel));
-  (FIELDS[s.type] || FIELDS.texto).forEach(([k, lab, kind]) => {
+  (FIELDS[s.type] || FIELDS.texto).forEach(([k, lab, kind, opts]) => {
     let el;
+    if (kind === "sel") {
+      el = document.createElement("select"); el.className = "inp";
+      Object.keys(opts).forEach(o => { const op = document.createElement("option"); op.value = o; op.textContent = opts[o]; if ((s[k] || "vitrine") === o) op.selected = true; el.appendChild(op); });
+      el.addEventListener("change", () => { s[k] = el.value; refresh(); });
+      sec1.appendChild(fieldWrap(lab, el)); return;
+    }
+    if (kind === "img") {
+      const w = document.createElement("div"); w.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
+      const up = document.createElement("label"); up.className = "btn sm"; up.textContent = s[k] ? "Trocar imagem" : "Enviar imagem";
+      const fi = document.createElement("input"); fi.type = "file"; fi.accept = "image/*"; fi.hidden = true; up.appendChild(fi);
+      fi.addEventListener("change", () => { const f = fi.files[0]; if (!f) return; const im = new Image(); im.onload = () => { const c = document.createElement("canvas"), sc = Math.min(1, 1100 / im.width); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); s[k] = c.toDataURL("image/jpeg", .84); refresh(); editor(); toast("Imagem aplicada na tela"); }; im.src = URL.createObjectURL(f); });
+      w.appendChild(up);
+      if (s[k]) { const rm = document.createElement("button"); rm.className = "btn sm ghost"; rm.type = "button"; rm.textContent = "Usar site padrão"; rm.addEventListener("click", () => { delete s[k]; refresh(); editor(); }); w.appendChild(rm); }
+      sec1.appendChild(fieldWrap(lab, w)); return;
+    }
     if (kind === "i") { el = document.createElement("input"); el.className = "inp"; el.value = s[k] || ""; }
     else { el = document.createElement("textarea"); el.className = "inp"; el.rows = kind === "l" ? 5 : 3; el.value = kind === "l" ? (s[k] || []).join("\n") : (s[k] || ""); }
     el.addEventListener("input", () => {
       s[k] = kind === "l" ? el.value.split("\n").map(x => x.trim()).filter(Boolean) : el.value;
-      if (k === "num" || k === "source") delete s._hint;
+      if (k === "num" || k === "source" || (k === "price" && el.value.trim())) delete s._hint;
       clearTimeout(edT); edT = setTimeout(() => { show(cur, false); const t = $$(".thumb canvas")[cur]; if (t) renderSlide(t, proj, cur, brand, .14, avatarImg); }, 70);
     });
     sec1.appendChild(fieldWrap(lab, el));
@@ -1596,7 +1923,7 @@ function fillBrand() {
   const ci = document.createElement("input"); ci.type = "color"; ci.value = brand.accent; ci.className = "sw"; ci.style.padding = "0"; ci.title = "Outra cor"; ci.addEventListener("input", () => setAccent(ci.value)); box.appendChild(ci);
 }
 function avatarFallback() { return "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#04060d"/><g transform="translate(18 34) scale(.16)"><path d="M293 2H397L249 238H215L186 170Z" fill="#4c618f"/><path d="M3 2H95L244 232C247 237 245 242 238 242H163C157 242 152 238 149 232Z" fill="#2a6dff"/></g></svg>'); }
-function saveBrand() { LS.set("vs-brand", brand); drawStylePreviews(); if (proj) refresh(); }
+function saveBrand() { LS.set("vs-brand", brand); drawStylePreviews(); if (brief.goal === "oferta") drawVariantPreviews(); if (proj) refresh(); }
 function setAccent(c) { brand.accent = c; saveBrand(); $$("#b-colors .sw").forEach(b => b.classList.toggle("on", b.style.background && rgbHex(b.style.background) === c)); }
 function rgbHex(s) { const m = s.match(/\d+/g); return m ? "#" + m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("") : s; }
 [["#b-name", "name"], ["#b-handle", "handle"], ["#b-cta", "cta"], ["#b-contact", "contact"], ["#b-tags", "tags"]].forEach(([s, k]) => $(s).addEventListener("input", e => { brand[k] = e.target.value; clearTimeout(edT); edT = setTimeout(saveBrand, 250); }));
