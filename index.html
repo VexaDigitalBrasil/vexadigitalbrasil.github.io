@@ -418,10 +418,16 @@ p{margin:0}
 .copy{font:inherit;font-size:.875rem;color:var(--fg);background:transparent;border:1px solid var(--line-strong);border-radius:999px;padding:8px 16px;cursor:pointer;transition:border-color .2s,background-color .2s}
 .copy:hover{border-color:var(--blue-hi);background:rgba(31,102,255,.08)}
 .copy[data-done]{border-color:var(--blue);color:var(--blue-hi)}
+.alt-contacts{list-style:none;margin:0;padding:18px 0 0;border-top:1px solid var(--line);display:grid;gap:14px}
+.alt-contacts a,.alt-contacts div{display:flex;align-items:center;gap:12px;color:var(--fg);text-decoration:none;font-size:.9375rem;overflow-wrap:anywhere}
+.alt-contacts svg{flex:none;width:36px;height:36px;padding:8px;border-radius:50%;border:1px solid var(--line-strong);color:var(--blue-hi);transition:border-color .2s,background-color .2s}
+.alt-contacts a:hover svg{border-color:var(--blue-hi);background:rgba(31,102,255,.12)}
+.alt-contacts a:hover span{color:#fff}
+.alt-contacts small{display:block;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
 @media (max-width:860px){.contact .wrap{grid-template-columns:1fr}}
 
 /* ---------- rodapé ---------- */
-.foot{border-top:1px solid var(--line);padding-block:48px 56px}
+.foot{border-top:1px solid var(--line);padding-block:48px 150px}
 .foot .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:28px}
 .lockup{display:grid;justify-items:center;gap:10px;text-decoration:none}
 .lockup .l-mark{width:76px;height:auto}
@@ -431,9 +437,13 @@ p{margin:0}
 .foot-meta nav{display:flex;flex-wrap:wrap;gap:20px;justify-content:flex-end}
 .foot-meta nav a{color:var(--muted);text-decoration:none}
 .foot-meta nav a:hover{color:var(--fg)}
-.made{display:flex;align-items:center;gap:8px}
+.foot-social{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:flex-end}
+.foot-social a{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;overflow-wrap:anywhere}
+.foot-social a:hover{color:var(--fg)}
+.foot-social svg{width:18px;height:18px;color:var(--blue-hi)}
+.made{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:inherit}
 .made svg{width:21px;height:14px;border-radius:2px}
-@media (max-width:640px){.foot .wrap{justify-content:center}.foot-meta{justify-items:center;text-align:center}.foot-meta nav{justify-content:center}}
+@media (max-width:640px){.foot .wrap{justify-content:center}.foot-meta{justify-items:center;text-align:center}.foot-meta nav,.foot-social,.made{justify-content:center}}
 
 /* ---------- botão flutuante ---------- */
 .float-wa{
@@ -645,6 +655,19 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
   <symbol id="i-chat" viewBox="0 0 24 24">
     <path d="M12 3.2a8.6 8.6 0 0 0-7.4 13l-1.2 4.4 4.5-1.2A8.6 8.6 0 1 0 12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
     <path d="M8.6 10.4h6.8M8.6 13.6h4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-insta" viewBox="0 0 24 24">
+    <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="17.3" cy="6.8" r="1.2" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24">
+    <rect x="3" y="5.2" width="18" height="13.6" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24">
+    <path d="M12 21s-6.6-6-6.6-11.2a6.6 6.6 0 0 1 13.2 0C18.6 15 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="12" cy="9.8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8"/>
   </symbol>
   <symbol id="i-arrow" viewBox="0 0 16 16">
     <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -937,7 +960,7 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
       </details>
       <details class="qa" data-reveal>
         <summary>Vocês atendem empresas de outras cidades?<span class="qa-icon" aria-hidden="true"></span></summary>
-        <div class="qa-body"><p>Sim. O atendimento é online, pelo WhatsApp e por videochamada, então a distância não atrapalha.</p></div>
+        <div class="qa-body"><p>Sim. A Vexa fica em Ribeirão Preto (SP), mas o atendimento é online, pelo WhatsApp e por videochamada, então a distância não atrapalha.</p></div>
       </details>
     </div>
   </div>
@@ -961,6 +984,11 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
         </div>
         <button class="copy" id="copy-number" type="button">Copiar número</button>
       </div>
+      <ul class="alt-contacts">
+        <li><a href="https://www.instagram.com/somosvexadigital/" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-insta"/></svg><span><small>Instagram</small>@somosvexadigital</span></a></li>
+        <li><a href="mailto:vexadigital2026@gmail.com"><svg aria-hidden="true"><use href="#i-mail"/></svg><span><small>E-mail</small>vexadigital2026@gmail.com</span></a></li>
+        <li><div><svg aria-hidden="true"><use href="#i-pin"/></svg><span><small>Onde estamos</small>Ribeirão Preto, SP · atendimento em todo o Brasil</span></div></li>
+      </ul>
     </div>
   </div>
 </section>
@@ -983,7 +1011,11 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
         <a href="#faq">Perguntas</a>
         <a href="#contato">Contato</a>
       </nav>
-      <span class="made">© 2026 Vexa Digital · Feito no Brasil <svg viewBox="0 0 42 28" aria-hidden="true"><use href="#flag-br"/></svg></span>
+      <div class="foot-social">
+        <a href="https://www.instagram.com/somosvexadigital/" target="_blank" rel="noopener" aria-label="Instagram da Vexa Digital"><svg aria-hidden="true"><use href="#i-insta"/></svg>@somosvexadigital</a>
+        <a href="mailto:vexadigital2026@gmail.com"><svg aria-hidden="true"><use href="#i-mail"/></svg>vexadigital2026@gmail.com</a>
+      </div>
+      <span class="made">© 2026 Vexa Digital · Ribeirão Preto, SP · Feito no Brasil <svg viewBox="0 0 42 28" aria-hidden="true"><use href="#flag-br"/></svg></span>
     </div>
   </div>
 </footer>
@@ -1044,6 +1076,9 @@ body:has(.vex.in.fallen:not(.gone)) .float-wa{right:calc(max(14px,env(safe-area-
 
 </div>
 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"Vexa Digital","url":"https://vexadigitalbrasil.com.br/","description":"Sites, tráfego pago, automação e social media para pequenas e médias empresas.","email":"vexadigital2026@gmail.com","sameAs":["https://www.instagram.com/somosvexadigital/"],"address":{"@type":"PostalAddress","addressLocality":"Ribeirão Preto","addressRegion":"SP","addressCountry":"BR"},"areaServed":{"@type":"Country","name":"Brasil"},"knowsAbout":["Criação de sites","Tráfego pago","Automação","Social media"]}
+</script>
 <script>
 /* ===== Configuração de contato: troque pelo número real (só dígitos, com 55 + DDD) ===== */
 const WHATSAPP_NUMBER = "5500000000000";
@@ -2206,6 +2241,8 @@ if ("IntersectionObserver" in window) {
     [".stack-card", "normal", ["Ferramentas de mercado, configuradas sob medida."]],
     [".qa summary", "normal", ["Clica pra ver a resposta."]],
     [".step", "normal", ["Etapa por etapa, sem enrolação."]],
+    ['a[href*="instagram.com"]', "love", ["Segue a gente lá! Tem vídeo novo toda hora.", "No Instagram eu apareço de vez em quando. Shhh."]],
+    ['a[href^="mailto:"]', "happy", ["Prefere e-mail? A gente responde também!"]],
     [".proj-card", "happy", ["Projeto feito em casa. Caprichamos!", "Esse aqui saiu do forno da Vexa."]],
     [".nav a", "normal", ["Quer pular direto pra uma parte? Eu te levo."]]
   ];
